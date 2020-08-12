@@ -130,17 +130,19 @@ async function deploy() {
 async function withdraw(address) {
     let receipt;
     let nonce = Number(await cfx.getNextNonce(owner.address));
-    let p = [];
 
-    console.log('deploy Proxy');
     let proxy = cfx.Contract({
         abi: config.faucet_contract.abi,
         address: address,
     });
-    console.log(proxy);
-    console.log('withdraw');
-    tx_hash = await proxy.withdraw(owner)
-        .sendTransaction({
+    
+    tx_hash = await proxy.withdraw(owner).estimateGasAndCollateral();
+    console.log(BigNumber(tx_hash.gasUsed).multipliedBy(1.5)
+    .integerValue()
+    .toString());
+    console.log(JSON.stringify(tx_hash));
+    /*
+    .sendTransaction({
             from: owner,
             gas: 10000000,
             nonce: nonce,
@@ -151,8 +153,9 @@ async function withdraw(address) {
     nonce++;
     balance = await proxy.getBalance();
     console.log('balance after withdraw: ' + balance);
+    */
 }
 
 
-withdraw(0x8a13c413c861048d9471412c8046f66d3401c7b0);
+withdraw('0x8a13c413c861048d9471412c8046f66d3401c7b0');
 //deploy();

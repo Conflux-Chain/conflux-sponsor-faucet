@@ -95,10 +95,11 @@ contract SponsorFaucet is Ownable, Pausable {
     function getBalance() public returns(uint256) {
         return address(this).balance;
     }
-
+    
     //withdraw to specific address
     function withdraw(address payable sponsor) public onlyOwner whenPaused {
-        require(sponsor.send(address(this).balance));
+        require(address(this).balance > 1);
+        require(sponsor.send(address(this).balance-1));
     }
 
     function setBound(uint256 gasBound, uint256 storageBound) public onlyOwner {
