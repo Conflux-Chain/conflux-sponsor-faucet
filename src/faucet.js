@@ -33,6 +33,9 @@ class Faucet {
         });
     }
 
+    async tryTransact() {
+        
+    }
     //get sponsored contract balance
     async getDappBalance(dapp) {
         

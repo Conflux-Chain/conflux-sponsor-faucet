@@ -17,7 +17,7 @@ const config = {
       value: w3.utils.toHex(new BigNumber(50).multipliedBy(1e18)),
   },
   
-  cfx_owner: '0xE2712409138E0FD520729148D66DD0483D9A1CCA805E14830C1EAA82A6BFF022',
+  cfx_owner: '',
 };
 
 module.exports = {
