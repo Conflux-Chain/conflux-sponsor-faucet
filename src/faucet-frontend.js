@@ -15,7 +15,7 @@ class Faucet {
         });
     }
 
-    async apply(dapp, address) {
+    async function apply(dapp, address) {
         let nonce = Number(await this.cfx.getNextNonce(address));
         let estimateData = this.proxy.applyFor(dapp).estimateGasAndCollateral();
         let gas = new BigNumber(estimateData.gasUsed)
@@ -34,12 +34,12 @@ class Faucet {
         return tx;
     }
 
-    async getGasBalance(dapp) {
+    async function getGasBalance(dapp) {
         let val = Number(await this.proxy.getDappGas(dapp).call());
         return val;
     }
 
-    async getCollateralBalance(dapp) {
+    async function getCollateralBalance(dapp) {
         let val = Number(await this.proxy.getCollateralBalance(dapp).call());
         return val; 
     }

@@ -34,7 +34,7 @@ class Faucet {
     }
 
     async tryTransact() {
-        
+
     }
     //get sponsored contract balance
     async getDappBalance(dapp) {
@@ -42,7 +42,7 @@ class Faucet {
     }
 
     //apply to get sponsored
-    async apply(dapp) {
+    async function apply(dapp) {
         let nonce = Number(await this.cfx.getNextNonce(owner.address));
         let estimateData = await this.proxy.applyFor(dapp).estimateGasAndCollateral();
         let gas = new BigNumber(estimateData.gasUsed)
@@ -63,17 +63,16 @@ class Faucet {
     }
 
     //withdraw
-    async withdraw(amount) {
+    async function withdraw(amount) {
 
     }
 
     //force pause
-    async pause() {
+    async function pause() {
         
     }
 
 }
-
 
 module.exports = {
     Faucet: Faucet,
