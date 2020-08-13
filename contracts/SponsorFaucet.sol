@@ -29,7 +29,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
-    function applyFor(address dapp) public onlyOwner nonReentrant whenNotPaused {
+    function applyFor(address dapp) public nonReentrant whenNotPaused {
         cpc.set_sponsor_for_gas.value(gas_bound)(dapp, gas_bound.div(1000));
         cpc.set_sponsor_for_collateral.value(collateral_bound)(dapp);
         dapps[dapp].cnt.add(1);
