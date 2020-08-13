@@ -9,13 +9,13 @@ const price = 111;
 class Faucet {
     constructor(url, address) {
         this.cfx = new Conflux({url: url});
-        this.proxy = cfx.Contract({
+        this.proxy = this.cfx.Contract({
             abi: faucet.abi,
             address: address,
         });
     }
 
-    async function apply(dapp, address) {
+    async apply(dapp, address) {
         let nonce = Number(await this.cfx.getNextNonce(address));
         let estimateData = this.proxy.applyFor(dapp).estimateGasAndCollateral();
         let gas = new BigNumber(estimateData.gasUsed)
@@ -34,12 +34,12 @@ class Faucet {
         return tx;
     }
 
-    async function getGasBalance(dapp) {
+    async getGasBalance(dapp) {
         let val = Number(await this.proxy.getDappGas(dapp).call());
         return val;
     }
 
-    async function getCollateralBalance(dapp) {
+    async getCollateralBalance(dapp) {
         let val = Number(await this.proxy.getCollateralBalance(dapp).call());
         return val; 
     }
