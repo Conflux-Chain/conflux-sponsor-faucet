@@ -3,30 +3,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/lifecycle/Pausable.sol";
-/*
-interface SponsorWhitelistControl {
-    // ------------------------------------------------------------------------
-    // Someone will sponsor the gas cost for contract `contract_addr` with an
-    // `upper_bound` for a single transaction.
-    // ------------------------------------------------------------------------
-    function set_sponsor_for_gas(address contract_addr, uint upper_bound) external payable;
+import "./Lib/ReentrancyGuard.sol";
 
-    // ------------------------------------------------------------------------
-    // Someone will sponsor the storage collateral for contract `contract_addr`.
-    // ------------------------------------------------------------------------
-    function set_sponsor_for_collateral(address contract_addr) external payable;
-
-    // ------------------------------------------------------------------------
-    // Add commission privilege for address `user` to some contract.
-    // ------------------------------------------------------------------------
-    function add_privilege(address[] calldata) external;
-
-    // ------------------------------------------------------------------------
-    // Remove commission privilege for address `user` from some contract.
-    // ------------------------------------------------------------------------
-    function remove_privilege(address[] calldata) external;
-}
-*/
 contract SponsorWhitelistControl {
     // ------------------------------------------------------------------------
     // Someone will sponsor the gas cost for contract `contract_addr` with an
@@ -54,7 +32,7 @@ contract SponsorWhitelistControl {
     }
 }
 
-contract SponsorFaucet is Ownable, Pausable {
+contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     struct detail {
         uint256 cnt;
         uint256 limit;
@@ -77,7 +55,7 @@ contract SponsorFaucet is Ownable, Pausable {
     
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
-    function applyFor(address dapp) public onlyOwner whenNotPaused {
+    function applyFor(address dapp) public onlyOwner nonReentrant whenNotPaused {
         cpc.set_sponsor_for_gas.value(gas_bound)(dapp, gas_bound);
         cpc.set_sponsor_for_collateral.value(storage_bound)(dapp);
         dapps[dapp].cnt++;
@@ -87,17 +65,22 @@ contract SponsorFaucet is Ownable, Pausable {
 
     //accept sponsor's cfx
     function () external payable {
-        require(msg.value != 0);
         sponsors[msg.sender] += msg.value;
     }
 
-    //balance of sponsor
-    function getBalance() public returns(uint256) {
-        return address(this).balance;
+    //get dapp sponsored balance
+    // todo: add internal contract getMethod
+    function getDappBalance(address dapp) public view returns(uint256){
+
     }
     
+    //balance of sponsor
+    function getBalance() public view returns(uint256) {
+        return address(this).balance;
+    }
+
     //withdraw to specific address
-    function withdraw(address payable sponsor) public onlyOwner whenPaused {
+    function withdraw(address payable sponsor) public onlyOwner nonReentrant whenPaused {
         require(address(this).balance > 1);
         require(sponsor.send(address(this).balance-1));
     }
