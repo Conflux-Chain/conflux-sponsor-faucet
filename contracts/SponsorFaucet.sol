@@ -43,10 +43,15 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
 
     //get dapp sponsored balance
     // todo: add internal contract getMethod
-    function getDappBalance(address dapp) public view returns(uint256){
+    function getDappGas(address dapp) public view returns(uint256){
+        
     }
 
-    //withdraw to specific address
+    function getDappCollateral(address dapp) public view returns(uint256){
+
+    }
+
+    //withdraw to specific address by amount
     function withdraw(address payable sponsor, uint256 amount) public onlyOwner nonReentrant whenPaused {
         require(address(this).balance > amount, "amount too high");
         require(sponsor.send(amount), "withdraw faild");
