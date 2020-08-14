@@ -4,7 +4,6 @@ const fs = require('fs');
 const faucet = JSON.parse(
     fs.readFileSync(__dirname + '/../build/contracts/SponsorFaucet.json'),
 );
-const price = 111;
 
 class Faucet {
     constructor(url, address) {
@@ -15,11 +14,11 @@ class Faucet {
         });
     }
 
-    async apply(dapp, address) {
+    async apply(dapp, address, gasPrice) {
         let nonce = Number(await this.cfx.getNextNonce(address));
         let estimateData = this.proxy.applyFor(dapp).estimateGasAndCollateral();
         let gas = new BigNumber(estimateData.gasUsed)
-            .multipliedBy(1.5)
+            .multipliedBy(1.3)
             .integerValue()
             .toString();
         let data = this.proxy.applyFor(dapp).data;
@@ -27,7 +26,7 @@ class Faucet {
             from: address,
             to: this.proxy.address,
             gas: gas,
-            gasPrice: price,
+            gasPrice: gasPrice,
             nonce: nonce,
             data : data,
         }
