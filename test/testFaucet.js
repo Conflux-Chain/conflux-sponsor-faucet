@@ -143,6 +143,19 @@ async function deploy() {
     if(receipt.outcomeStatus !== 0) throw new Error('apply failed!');
     nonce++;
 
+    //dapp add user
+    console.log('dapp add user');
+    tx_hash = await dapp.add(zero.address)
+        .sendTransaction({
+            from: owner,
+            gas: 10000000,
+            nonce: nonce,
+            gasPrice: price,
+        });
+    receipt = await waitForReceipt(tx_hash);
+    if(receipt.outcomeStatus !== 0) throw new Error('dapp add user failed!');
+    nonce++;
+    
     //dapp set
     let userNonce = Number(await cfx.getNextNonce(zero.address));
     console.log('zero nonce: ', userNonce);
