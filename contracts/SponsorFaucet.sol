@@ -14,7 +14,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         uint256 limit;
     }
 
-    //limits for single sponsor
+    //single sponsor bound
     uint256 public gas_bound;
     uint256 public collateral_bound;
     mapping(address=>detail) public dapps;
@@ -30,8 +30,9 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
-    function applyFor(address dapp) public nonReentrant whenNotPaused {
-        cpc.set_sponsor_for_gas.value(gas_bound)(dapp, gas_bound.div(1000));
+    function applyFor(address dapp, uint256 upper_bound) public nonReentrant whenNotPaused {
+        require(upper_bound.mul(1000) <= gas_bound, 'upper_bound too high');
+        cpc.set_sponsor_for_gas.value(gas_bound)(dapp, upper_bound);
         cpc.set_sponsor_for_collateral.value(collateral_bound)(dapp);
         dapps[dapp].cnt.add(1);
         dapps[dapp].limit.add(gas_bound.add(collateral_bound));
