@@ -19,7 +19,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     uint256 public collateral_bound;
     mapping(address=>detail) public dapps;
     
-    event applied(address indexed dapp);
+    event applied(address indexed applicant, address indexed dapp, uint256 indexed upper_bound);
     
     SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
     
@@ -31,12 +31,13 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
     function applyFor(address dapp, uint256 upper_bound) public nonReentrant whenNotPaused {
+        //todo: internal contract require check
         require(upper_bound.mul(1000) <= gas_bound, 'upper_bound too high');
         cpc.set_sponsor_for_gas.value(gas_bound)(dapp, upper_bound);
         cpc.set_sponsor_for_collateral.value(collateral_bound)(dapp);
         dapps[dapp].cnt.add(1);
         dapps[dapp].limit.add(gas_bound.add(collateral_bound));
-        emit applied(dapp);
+        emit applied(msg.sender, dapp, upper_bound);
     }
 
     //accept sponsor's cfx

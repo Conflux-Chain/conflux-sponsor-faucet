@@ -1,10 +1,16 @@
 const {Conflux} = require('js-conflux-sdk');
 const config = require('./config.js').config;
-const {gasBound, storageBound, value, dapp} = config.info;
+const {gasBound, storageBound, value, upperBound} = config.info;
 const fs = require('fs');
+const program = require('commander');
 const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
+const w3 = new Web3();
 const cfx = new Conflux({url: config.cfx_oceanus});
+const {Faucet} = require('../src/faucet.js');
+//const faucet = new Faucet('http://18.182.200.167:12537', '0x8a13c413c861048d9471412c8046f66d3401c7b0');
 
+//console.log(faucet);
 const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   };
@@ -24,20 +30,7 @@ async function waitForReceipt(hash) {
     }
 }
 
-async function waitNonce(target, acc) {
-    let x;
-    for (;;) {
-      x = Number(await cfx.getNextNonce(acc));
-      if (x < target) {
-        await sleep(5000);
-        continue;
-      }
-      break;
-    }
-    return x;
-  }
-
-const price = 111;
+const price = 1;
 
 /*
 deploy Faucet
@@ -45,19 +38,20 @@ deploy Faucet
 ->dapp apply
 */
 let owner = cfx.Account(config.cfx_owner);
+let user = cfx.Account(config.cfx_user);
+let zero = cfx.Account(config.cfx_zero);
 
 async function deploy() {
     let receipt;
     let nonce = Number(await cfx.getNextNonce(owner.address));
-    let p = [];
 
-    console.log('deploy Proxy');
-    let proxy = cfx.Contract({
+    console.log('deploy faucet');
+    let faucet = cfx.Contract({
         abi: config.faucet_contract.abi,
         bytecode: config.faucet_contract.bytecode,
     });
 
-    let tx_hash = await proxy
+    let tx_hash = await faucet
         .constructor(
             gasBound,
             storageBound,
@@ -70,40 +64,78 @@ async function deploy() {
             storageLimit: 10000000,
         });
     receipt = await waitForReceipt(tx_hash);
-    if(receipt.outcomeStatus !== 0) throw new Error('deploy failed!');
-    let proxy_addr = receipt.contractCreated;
-    console.log('faucet contract address: ', proxy_addr);
-    proxy = cfx.Contract({
+    if(receipt.outcomeStatus !== 0) throw new Error('faucet deploy failed!');
+    let faucet_addr = receipt.contractCreated;
+    console.log('faucet contract address: ', faucet_addr);
+    faucet = cfx.Contract({
         abi: config.faucet_contract.abi,
-        address: proxy_addr,
+        address: faucet_addr,
     })
     nonce++;
+    
+    let dapp = cfx.Contract({
+        abi: config.dapp_contract.abi,
+        bytecode: config.dapp_contract.bytecode,
+    })
 
+    tx_hash = await dapp
+        .constructor()
+        .sendTransaction({
+            from: owner,
+            gas: 1000000,
+            nonce: nonce,
+            gasPrice: price,
+            storageLimit: 10000000,
+        });
+    receipt = await waitForReceipt(tx_hash);
+    if(receipt.outcomeStatus !== 0) throw new Error('dapp deploy failed!');
+    let dapp_addr = receipt.contractCreated;
+    console.log('test dapp contract address: ', dapp_addr);
+    dapp = cfx.Contract({
+        abi: config.dapp_contract.abi,
+        address: dapp_addr,
+    });
+    nonce++;
+
+    let res = {}
+    res.faucet_address = faucet_addr;
+    res.dapp_address = dapp_addr;
+    fs.writeFileSync(
+        __dirname + '/address.json',
+        JSON.stringify(res),
+    );
+    
     //sponsor first send cfx
     console.log('send cfx to faucet');
     tx_hash = await cfx.sendTransaction({
         from: owner,
-        to: proxy_addr,
-        gas: 10000000,
+        to: faucet_addr,
+        gas: 21040,
         nonce: nonce,
-        gasPrice: price,
+        gasPrice: 1,
         value: value,
     });
     receipt = await waitForReceipt(tx_hash);
     if(receipt.outcomeStatus !== 0) throw new Error('init sponsor failed!');
     nonce++;
 
-    //get faucet balance
-    console.log('get faucet balance');
-    let balance = await proxy.getBalance();
-    console.log(balance);
+    let faucet_balance = Number(await cfx.getBalance(faucet_addr));
+    console.log('faucet current balance: ', faucet_balance);
 
+    let estimateData = await dapp.set(faucet_addr, 1).estimateGasAndCollateral();
+    let gas = new BigNumber(estimateData.gasUsed)
+        .multipliedBy(1.3)
+        .integerValue()
+        .toString();
+    console.log('estimated dapp set upper_bound: ', gas);
+    
     //Dapp Dev apply to get 
     console.log('apply to faucet');
-    tx_hash = await proxy.applyFor(dapp)
+    gas = w3.utils.toHex(new BigNumber(0.0001).multipliedBy(1e18));
+    tx_hash = await faucet.applyFor(dapp_addr, gas)
         .sendTransaction({
             from: owner,
-            gas: 10000000,
+            gas: 1000000,
             nonce: nonce,
             gasPrice: price,
         });
@@ -111,51 +143,103 @@ async function deploy() {
     if(receipt.outcomeStatus !== 0) throw new Error('apply failed!');
     nonce++;
 
+    //dapp set
+    let userNonce = Number(await cfx.getNextNonce(zero.address));
+    console.log('zero nonce: ', userNonce);
+    console.log('dapp set');
+    tx_hash = await dapp.set(faucet_addr, 1)
+        .sendTransaction({
+            from: zero,
+            gas: 10000000,
+            nonce: 0,
+            gasPrice: price,
+        });
+    receipt = await waitForReceipt(tx_hash);
+    if(receipt.outcomeStatus !== 0) throw new Error('dapp set failed!');
+    
     //withdraw from faucet
-    console.log('withdraw');
-    tx_hash = await proxy.withdraw(owner)
+    console.log('pauce faucet');
+    tx_hash = await faucet.pause()
         .sendTransaction({
             from: owner,
-            gas: 10000000,
+            gas: 1000000,
             nonce: nonce,
             gasPrice: price,
         });
     receipt = await waitForReceipt(tx_hash);
-    if(receipt.outcomeStatus !== 0) throw new Error('withdraw failed!');
+    if(receipt.outcomeStatus !== 0) throw new Error('pause failed!');
     nonce++;
-    balance = await proxy.getBalance();
+
+    console.log('withdraw all');
+    let balance = await cfx.getBalance(faucet_addr);
+    console.log('faucet current balance', balance);
+    tx_hash = await faucet.withdraw(owner, balance)
+        .sendTransaction({
+            from: owner,
+            gas: 1000000,
+            nonce: nonce,
+            gasPrice: price,
+        });
+    receipt = await waitForReceipt(tx_hash);
+    if(receipt.outcomeStatus !== 0) throw new Error('withdraw all failed!');
+    nonce++;
+    balance = await cfx.getBalance(faucet_addr);
     console.log('balance after withdraw: ' + balance);
 }
 
 async function withdraw(address) {
     let receipt;
+    let tx_hash;
     let nonce = Number(await cfx.getNextNonce(owner.address));
-
-    let proxy = cfx.Contract({
+    let balance = Number(await cfx.getBalance(address));
+    console.log('faucet current balance: ', balance);
+    
+    let faucet = cfx.Contract({
         abi: config.faucet_contract.abi,
         address: address,
     });
     
-    tx_hash = await proxy.withdraw(owner).estimateGasAndCollateral();
-    console.log(BigNumber(tx_hash.gasUsed).multipliedBy(1.5)
-    .integerValue()
-    .toString());
-    console.log(JSON.stringify(tx_hash));
-    /*
-    .sendTransaction({
+    console.log('pauce faucet');
+    tx_hash = await faucet.pause()
+        .sendTransaction({
             from: owner,
-            gas: 10000000,
+            gas: 1000000,
             nonce: nonce,
             gasPrice: price,
         });
     receipt = await waitForReceipt(tx_hash);
-    if(receipt.outcomeStatus !== 0) throw new Error('withdraw failed!');
+    if(receipt.outcomeStatus !== 0) throw new Error('pause failed!');
     nonce++;
-    balance = await proxy.getBalance();
-    console.log('balance after withdraw: ' + balance);
-    */
+    
+    let val = w3.utils.toHex(new BigNumber(balance));
+    let estimateData = await faucet.withdraw(owner, balance).estimateGasAndCollateral();
+    let gas = new BigNumber(estimateData.gasUsed)
+        .multipliedBy(1.5)
+        .integerValue()
+        .toString();
+    console.log('send tx, gas: ', gas);
+    tx_hash = await faucet.withdraw(owner, val)
+        .sendTransaction({
+            from: owner,
+            gas: 1000000,
+            nonce: nonce,
+            gasPrice: 1,
+        });
+    receipt = await waitForReceipt(tx_hash);
+    console.log(receipt);
+    if(receipt.outcomeStatus !== 0) throw new Error('withdraw failed!');
 }
 
+program
+  .option('-d, --deploy', 'deploy faucet contract')
+  .option('-w, --address [type]', 'withdraw from faucet')
+  .option('-t, --test', 'unit test')
+  .parse(process.argv);
 
-withdraw('0x8a13c413c861048d9471412c8046f66d3401c7b0');
-//deploy();
+if(program.deploy) {
+    deploy();
+}
+if(program.address) {
+    console.log(program.address);
+    withdraw(program.address);
+}

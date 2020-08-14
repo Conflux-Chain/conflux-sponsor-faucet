@@ -32,9 +32,9 @@ class Faucet {
             address: address,
         });
     }
-
+    //send generated tx
     async tryTransact() {
-
+               
     }
     //get sponsored contract balance
     async getDappBalance(dapp) {
