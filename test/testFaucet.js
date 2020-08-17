@@ -55,6 +55,7 @@ async function deploy() {
         .constructor(
             gasBound,
             storageBound,
+            upperBound,
         )
         .sendTransaction({
             from: owner,
@@ -122,17 +123,17 @@ async function deploy() {
     let faucet_balance = Number(await cfx.getBalance(faucet_addr));
     console.log('faucet current balance: ', faucet_balance);
 
+    /*
     let estimateData = await dapp.set(faucet_addr, 1).estimateGasAndCollateral();
     let gas = new BigNumber(estimateData.gasUsed)
         .multipliedBy(1.3)
         .integerValue()
         .toString();
     console.log('estimated dapp set upper_bound: ', gas);
-    
+    */
     //Dapp Dev apply to get 
     console.log('apply to faucet');
-    gas = w3.utils.toHex(new BigNumber(0.0001).multipliedBy(1e18));
-    tx_hash = await faucet.applyFor(dapp_addr, gas)
+    tx_hash = await faucet.applyFor(dapp_addr)
         .sendTransaction({
             from: owner,
             gas: 1000000,
@@ -164,12 +165,16 @@ async function deploy() {
         .sendTransaction({
             from: zero,
             gas: 10000000,
-            nonce: 0,
+            nonce: userNonce,
             gasPrice: price,
         });
     receipt = await waitForReceipt(tx_hash);
     if(receipt.outcomeStatus !== 0) throw new Error('dapp set failed!');
     
+    //dapp get
+    let record = await dapp.record(faucet_addr).call();
+    console.log('dapp record: ', record);
+
     //withdraw from faucet
     console.log('pauce faucet');
     tx_hash = await faucet.pause()
@@ -185,7 +190,7 @@ async function deploy() {
 
     console.log('withdraw all');
     let balance = await cfx.getBalance(faucet_addr);
-    console.log('faucet current balance', balance);
+    console.log('faucet current balance', Number(balance));
     tx_hash = await faucet.withdraw(owner, balance)
         .sendTransaction({
             from: owner,
@@ -246,7 +251,6 @@ async function withdraw(address) {
 program
   .option('-d, --deploy', 'deploy faucet contract')
   .option('-w, --address [type]', 'withdraw from faucet')
-  .option('-t, --test', 'unit test')
   .parse(process.argv);
 
 if(program.deploy) {

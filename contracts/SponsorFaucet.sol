@@ -17,22 +17,25 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     //single sponsor bound
     uint256 public gas_bound;
     uint256 public collateral_bound;
+    //upper bound for single tx
+    uint256 public upper_bound;
     mapping(address=>detail) public dapps;
     
     event applied(address indexed applicant, address indexed dapp, uint256 indexed upper_bound);
     
     SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
     
-    constructor(uint256 gasBound, uint256 collateralBound) public {
+    constructor(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public {
+        require(upperBound.mul(1000) <= gasBound, 'upperBound too high');
         gas_bound = gasBound;
         collateral_bound = collateralBound;
+        upper_bound = upperBound;
     }
     
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
-    function applyFor(address dapp, uint256 upper_bound) public nonReentrant whenNotPaused {
+    function applyFor(address dapp) public nonReentrant whenNotPaused {
         //todo: internal contract require check
-        require(upper_bound.mul(1000) <= gas_bound, 'upper_bound too high');
         cpc.set_sponsor_for_gas.value(gas_bound)(dapp, upper_bound);
         cpc.set_sponsor_for_collateral.value(collateral_bound)(dapp);
         dapps[dapp].cnt.add(1);
@@ -60,8 +63,10 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         require(sponsor.send(amount), "withdraw faild");
     }
 
-    function setBound(uint256 gasBound, uint256 collateralBound) public onlyOwner {
+    function setBound(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public onlyOwner {
+        require(upperBound.mul(1000) <= gasBound, 'upperBound too high');
         gas_bound = gasBound;
-        collateral_bound = collateralBound;    
+        collateral_bound = collateralBound;
+        upper_bound = upperBound;   
     }
 }
