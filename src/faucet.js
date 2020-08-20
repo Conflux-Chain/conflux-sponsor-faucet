@@ -6,72 +6,95 @@ const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-async function waitForReceipt(hash) {
-    for (;;) {
-        let res = await cfx.getTransactionReceipt(hash);
-        if (res != null) {
-          if (
-            res.stateRoot !==
-            '0x0000000000000000000000000000000000000000000000000000000000000000'
-          ) {
-            return res;
-          }
-        }
-        await sleep(30000);
-      }
-}
-
-const price = 111;
-
 class Faucet {
-    constructor(url, address) {
+    /**
+     * @dev contructor for faucet
+     * @param url The conflux provider url
+     * @param address The faucet contract address 
+     * @param privatekey The privatekey begins with '0x'
+     */
+    constructor(url, address, privatekey) {
         this.cfx = new Conflux({url: url});
-        this.owner = this.cfx.Account(config.cfx_owner);
-        this.proxy = this.cfx.Contract({
+        this.owner = this.cfx.Account(privatekey);
+        this.faucet = this.cfx.Contract({
             abi: config.faucet_contract.abi,
             address: address,
         });
     }
-    //send generated tx
-    async tryTransact() {
-               
-    }
-    //get sponsored contract balance
-    async getDappBalance(dapp) {
-        
-    }
 
-    //apply to get sponsored
-    async apply(dapp) {
-        let nonce = Number(await this.cfx.getNextNonce(owner.address));
-        let estimateData = await this.proxy.applyFor(dapp).estimateGasAndCollateral();
+    /**
+     * @dev send tx with data loaded
+     * @param call_func The contract method 
+     * @param params The parameters of contract method  
+     */
+    async tryTransact(call_func, params) {
+        let nonce = Number(await this.cfx.getNextNonce(this.owner.address));
+        let estimateData = await call_func(...params).estimateGasAndCollateral();
         let gas = new BigNumber(estimateData.gasUsed)
-            .multipliedBy(1.5)
+            .multipliedBy(1.3)
             .integerValue()
             .toString();
-        
-        let tx_hash = await this.proxy.applyFor(dapp)
-            .sendTransaction({
-                from: this.owner,
-                gas: gas,
-                nonce: nonce,
-                gasPrice: price,
-            });
-        let receipt = await waitForReceipt(tx_hash);
-        if(receipt.outcomeStatus !== 0) throw new Error('apply failed!');
-        return true;
+        let data = call_func(...params).data;
+        let tx = {
+            from: this.owner,
+            to: this.faucet.address,
+            gas: gas,
+            gasPrice: 1,
+            nonce: nonce,
+            data: data,
+            value: 0,
+        }
+        //esitmate sucks for withdraw, hard code instead
+        if(call_func === this.faucet.withdraw) {
+            tx.gas = 1000000;
+        }
+        let tx_hash = await this.cfx.sendTransaction(tx);
+        let receipt = await this.waitForReceipt(tx_hash);
+        if(receipt.outcomeStatus !== 0) throw new Error('send tx failed!');
     }
 
-    //withdraw
-    async withdraw(amount) {
-
+    /**
+     * @dev wait for receipt of transaction
+     * @param hash The tx hash
+     */
+    async waitForReceipt(hash) {
+        for (;;) {
+            let res = await this.cfx.getTransactionReceipt(hash);
+            if (res != null) {
+              if (
+                res.stateRoot !==
+                '0x0000000000000000000000000000000000000000000000000000000000000000'
+              ) {
+                return res;
+              }
+            }
+            await sleep(30000);
+        }
+    }
+    
+    /**
+     * @dev apply to be sponsored
+     * @param dapp The address of dapp 
+     */
+    async apply(dapp) {
+        await this.tryTransact(this.faucet.applyFor, dapp);
     }
 
-    //force pause
+    /**
+     * @dev withdraw from faucet
+     * @param address The sponsor faucet address 
+     * @param amount The amout to be withdrawn
+     */
+    async withdraw(address, amount) {
+        await this.tryTransact(this.faucet.withdraw, [address, amount]);
+    }
+
+    /**
+     * @dev force pause
+     */
     async pause() {
-        
+        await this.tryTransact(this.faucet.pause, []);
     }
-
 }
 
 module.exports = {
