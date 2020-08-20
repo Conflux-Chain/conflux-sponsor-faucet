@@ -1,9 +1,11 @@
 # conflux-sponsor-faucet
 
-A faucet for sponsoring contract running on Conflux Chain.
+A faucet for sponsoring contracts running on Conflux Chain. Before your apply, make sure you understand how the [internal contracts](https://github.com/Conflux-Chain/conflux-rust/tree/master/internal_contract) works.
 
 ## Conflux SponsorFaucet SDK
 ### Frontend
+
+The **faucet-frontend** works with conflux portal.
 
 Constructor for faucet
 
@@ -24,6 +26,8 @@ async apply(dapp, address) -> tx
 ```
 
 ### Backend
+
+The **faucet-backend** supports importing privatekey and apply for sponsor. 
 
 Constructor for faucet
 
