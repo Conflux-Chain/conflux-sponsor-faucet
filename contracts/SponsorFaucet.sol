@@ -60,7 +60,9 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     //withdraw to specific address by amount
     function withdraw(address payable sponsor, uint256 amount) public onlyOwner nonReentrant whenPaused {
         require(address(this).balance >= amount, "amount too high");
-        require(sponsor.send(amount), "withdraw faild");
+        //require(sponsor.send(amount), "withdraw failed");
+        (bool success, ) = sponsor.call.value(amount)("");
+        require(success, "withdraw failed");
     }
 
     function setBound(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public onlyOwner {

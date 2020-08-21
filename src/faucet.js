@@ -44,6 +44,7 @@ class Faucet {
             data: data,
             value: 0,
         }
+        
         //esitmate sucks for withdraw, hard code instead
         if(call_func === this.faucet.withdraw) {
             tx.gas = 1000000;
