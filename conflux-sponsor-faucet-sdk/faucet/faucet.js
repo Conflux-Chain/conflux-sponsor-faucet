@@ -77,7 +77,7 @@ class Faucet {
      * @param dapp The address of dapp 
      */
     async apply(dapp) {
-        await this.tryTransact(this.faucet.applyFor, dapp);
+        await this.tryTransact(this.faucet.applyFor, [dapp]);
     }
 
     /**

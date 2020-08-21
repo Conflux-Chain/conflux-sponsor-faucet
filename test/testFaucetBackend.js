@@ -13,7 +13,7 @@ console.log(faucet);
 
 async function test() {
     //applyFor
-    await faucet.apply([address.dapp_address]);
+    await faucet.apply(address.dapp_address);
     
     let account = cfx.Account(config.cfx_owner);
     let amount = await cfx.getBalance(address.faucet_address);
