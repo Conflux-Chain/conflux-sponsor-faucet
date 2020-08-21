@@ -1,6 +1,6 @@
 const {Conflux} = require('js-conflux-sdk');
+const config = require('../test/config.js').config;
 const BigNumber = require('bignumber.js');
-const faucetABI = require('./build/contracts/SponsorFaucet.json');
 
 const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,7 +17,7 @@ class Faucet {
         this.cfx = new Conflux({url: url});
         this.owner = this.cfx.Account(privatekey);
         this.faucet = this.cfx.Contract({
-            abi: faucetABI.abi,
+            abi: config.faucet_contract.abi,
             address: address,
         });
     }
@@ -30,10 +30,18 @@ class Faucet {
     async tryTransact(call_func, params) {
         let nonce = Number(await this.cfx.getNextNonce(this.owner.address));
         let estimateData = await call_func(...params).estimateGasAndCollateral();
-        let gas = new BigNumber(estimateData.gasUsed)
+        let gas;
+        if (call_func === this.faucet.withdraw) {
+            gas = new BigNumber(estimateData.gasUsed)
+            .multipliedBy(1.8)
+            .integerValue()
+            .toString();
+        } else {
+            gas = new BigNumber(estimateData.gasUsed)
             .multipliedBy(1.3)
             .integerValue()
             .toString();
+        }
         let data = call_func(...params).data;
         let tx = {
             from: this.owner,
@@ -44,10 +52,7 @@ class Faucet {
             data: data,
             value: 0,
         }
-        //esitmate sucks for withdraw, hard code instead
-        if(call_func === this.faucet.withdraw) {
-            tx.gas = 1000000;
-        }
+        
         let tx_hash = await this.cfx.sendTransaction(tx);
         let receipt = await this.waitForReceipt(tx_hash);
         if(receipt.outcomeStatus !== 0) throw new Error('send tx failed!');
