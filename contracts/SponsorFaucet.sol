@@ -10,7 +10,8 @@ import "./InternalContract.sol";
 contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
     struct detail {
-        uint256 cnt;
+        uint256 gas_cnt;
+        uint256 collateral_cnt;
         uint256 limit;
     }
 
@@ -31,30 +32,42 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         collateral_bound = collateralBound;
         upper_bound = upperBound;
     }
-    
+     
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
     function applyFor(address dapp) public nonReentrant whenNotPaused {
         //todo: internal contract require check
-        cpc.set_sponsor_for_gas.value(gas_bound)(dapp, upper_bound);
-        cpc.set_sponsor_for_collateral.value(collateral_bound)(dapp);
-        dapps[dapp].cnt.add(1);
+        cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
+        cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
+        dapps[dapp].gas_cnt.add(1);
+        dapps[dapp].collateral_cnt.add(1);
         dapps[dapp].limit.add(gas_bound.add(collateral_bound));
         emit applied(msg.sender, dapp, upper_bound);
+    }
+
+    function applyForGas(address dapp) public nonReentrant whenNotPaused {
+        cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
+        dapps[dapp].gas_cnt.add(1);
+        dapps[dapp].limit.add(gas_bound);
+    }
+
+    function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
+        cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
+        dapps[dapp].collateral_cnt.add(1);
+        dapps[dapp].limit.add(collateral_bound);
     }
 
     //accept sponsor's cfx
     function () external payable {
     }
 
-    //get dapp sponsored balance
-    // todo: add internal contract getMethod
-    function getGasBalance(address dapp) public view returns(uint256){
-        
+    /*** get dapp sponsored balance ***/
+    function getGasBalance(address dapp) public returns(uint256) {
+        return cpc.getSponsoredBalanceForGas(dapp);
     }
 
-    function getCollateralBalance(address dapp) public view returns(uint256){
-
+    function getCollateralBalance(address dapp) public returns(uint256) {
+        return cpc.getSponsoredBalanceForCollateral(dapp);
     }
 
     //withdraw to specific address by amount
