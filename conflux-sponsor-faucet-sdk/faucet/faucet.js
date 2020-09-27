@@ -1,5 +1,7 @@
 const {Conflux} = require('js-conflux-sdk');
-const config = require('../test/config.js').config;
+
+const faucet_contract = require('./build/contracts/SponsorFaucet.json');
+const cpc_contract = require('./build/contracts/SponsorWhitelistControl.json');
 const BigNumber = require('bignumber.js');
 
 const sleep = (ms) => {
@@ -17,8 +19,12 @@ class Faucet {
         this.cfx = new Conflux({url: url});
         this.owner = this.cfx.Account(privatekey);
         this.faucet = this.cfx.Contract({
-            abi: config.faucet_contract.abi,
+            abi: faucet_contract.abi,
             address: address,
+        });
+        this.cpc = this.cfx.Contract({
+            abi: cpc_contract.abi,
+            address: "0x0888000000000000000000000000000000000001",
         });
     }
 
@@ -85,6 +91,14 @@ class Faucet {
         await this.tryTransact(this.faucet.applyFor, [dapp]);
     }
 
+    async applyForGas(dapp) {
+        await this.tryTransact(this.faucet.applyForGas, [dapp]);
+    }
+
+    async applyForCollateral() {
+        await this.tryTransact(this.faucet.applyForCollateral, [dapp]);
+    }
+
     /**
      * @dev withdraw from faucet
      * @param address The sponsor faucet address 
@@ -94,11 +108,51 @@ class Faucet {
         await this.tryTransact(this.faucet.withdraw, [address, amount]);
     }
 
+    async setBound(gasBound, co)
+
     /**
      * @dev force pause
      */
     async pause() {
         await this.tryTransact(this.faucet.pause, []);
+    }
+
+    /**
+     * @dev query functions 
+     */
+    async getSponsorForGas(dapp) {
+        let address = await this.tryTransact(this.cpc.getSponsorForGas, [dapp]);
+        return address;
+    }
+
+    async getSponsoredBalanceForGas(dapp) {
+        let balance = await this.tryTransact(this.cpc.getSponsoredBalanceForGas, [dapp]);
+        return balance;
+    }
+
+    async getSponsoredGasFeeUpperBound(dapp) {
+        let upperBound = await this.tryTransact(this.cpc.getSponsoredGasFeeUpperBound, [dapp]);
+        return upperBound;
+    }
+
+    async getSponsorForCollateral(dapp) {
+        let address = await this.tryTransact(this.cpc.getSponsorForCollateral, [dapp]);
+        return address;
+    }
+
+    async getSponsoredBalanceForCollateral(dapp) {
+        let balance = await this.tryTransact(this.cpc.getSponsoredBalanceForCollateral, [dapp]);
+        return balance;
+    }
+
+    async isWhitelisted(dapp, user) {
+        let res = await this.tryTransact(this.cpc.isWhitelisted, [dapp, user]);
+        return res;
+    }
+
+    async isAllWhitelisted(dapp) {
+        let res = await this.tryTransact(this.cpc.isAllWhitelisted, [dapp]);
+        return res;
     }
 }
 

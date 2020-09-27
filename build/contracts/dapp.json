@@ -58,12 +58,12 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.11+commit.c082d0b4\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"add\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"record\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"key\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"val\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol\":\"dapp\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol\":{\"keccak256\":\"0xc63b004d50e8e75760941bd3056b34670fe21fe71872e706e761978db844e5b8\",\"urls\":[\"bzz-raw://06a6a35d41a2931e1d9a7bcdb34f1e9a20aafa26b8878500476e3b7d97d09a96\",\"dweb:/ipfs/QmPewGUqXpLmZ7GWnGEKhafsbiym74MsFavTB79CH9H8RJ\"]},\"/Users/xiongyu/conflux-sponsor-faucet/contracts/InternalContract.sol\":{\"keccak256\":\"0x12f999fafe5e838a6826282016c2f0d9ea381f572d9104f80767a0f48c5366eb\",\"urls\":[\"bzz-raw://931f1103ab10408be9b738660bf0f14c3fdf200de7d71665e82bed1b55f5eab1\",\"dweb:/ipfs/QmZ4j4ny2o2TwpXvcmn8oFTAQBEbYJZ1caYZBLUqurj6Yp\"]}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5061030b806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80630a3b0a4f146100465780633465d6d51461008a5780633825d828146100e2575b600080fd5b6100886004803603602081101561005c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610130565b005b6100cc600480360360208110156100a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610277565b6040518082815260200191505060405180910390f35b61012e600480360360408110156100f857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061028f565b005b600073088800000000000000000000000000000000000190506060600160405190808252806020026020018201604052801561017b5781602001602082028038833980820191505090505b509050828160008151811061018c57fe5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff16815250508173ffffffffffffffffffffffffffffffffffffffff1663fe15156c826040518263ffffffff1660e01b81526004018080602001828103825283818151815260200191508051906020019060200280838360005b8381101561023557808201518184015260208101905061021a565b5050505090500192505050600060405180830381600087803b15801561025a57600080fd5b505af115801561026e573d6000803e3d6000fd5b50505050505050565b60006020528060005260406000206000915090505481565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550505056fea265627a7a72315820ff93bb0d46c326c49b4e9927f39c16552bf4a1043f41dbcb7f37508cc8b9f7ea64736f6c634300050b0032",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80630a3b0a4f146100465780633465d6d51461008a5780633825d828146100e2575b600080fd5b6100886004803603602081101561005c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610130565b005b6100cc600480360360208110156100a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610277565b6040518082815260200191505060405180910390f35b61012e600480360360408110156100f857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061028f565b005b600073088800000000000000000000000000000000000190506060600160405190808252806020026020018201604052801561017b5781602001602082028038833980820191505090505b509050828160008151811061018c57fe5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff16815250508173ffffffffffffffffffffffffffffffffffffffff1663fe15156c826040518263ffffffff1660e01b81526004018080602001828103825283818151815260200191508051906020019060200280838360005b8381101561023557808201518184015260208101905061021a565b5050505090500192505050600060405180830381600087803b15801561025a57600080fd5b505af115801561026e573d6000803e3d6000fd5b50505050505050565b60006020528060005260406000206000915090505481565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550505056fea265627a7a72315820ff93bb0d46c326c49b4e9927f39c16552bf4a1043f41dbcb7f37508cc8b9f7ea64736f6c634300050b0032",
-  "sourceMap": "58:406:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;58:406:0;;;;;;;",
-  "deployedSourceMap": "58:406:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;58:406:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;210:252;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;210:252:0;;;;;;;;;;;;;;;;;;;:::i;:::-;;78:39;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;78:39:0;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;124:80;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;124:80:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;210:252;257:27;311:42;257:97;;364:18;399:1;385:16;;;;;;;;;;;;;;;;;;;;;;29:2:-1;21:6;17:15;117:4;105:10;97:6;88:34;148:4;140:6;136:17;126:27;;0:157;385:16:0;;;;364:37;;418:7;411:1;413;411:4;;;;;;;;;;;;;:14;;;;;;;;;;;435:3;:17;;;453:1;435:20;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;435:20:0;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;435:20:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;435:20:0;;;;210:252;;;:::o;78:39::-;;;;;;;;;;;;;;;;;:::o;124:80::-;194:3;180:6;:11;187:3;180:11;;;;;;;;;;;;;;;:17;;;;124:80;;:::o",
-  "source": "pragma solidity 0.5.11;\nimport \"./InternalContract.sol\";\n\ncontract dapp {\n    mapping(address=>uint256) public record;\n\n    function set(address key, uint256 val) public {\n        record[key] = val;\n    }\n\n    function add(address account) public {\n        SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);\n        address[] memory a = new address[](1);\n        a[0] = account;\n        cpc.add_privilege(a);\n    }\n}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.11+commit.c082d0b4\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"add\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"record\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"key\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"val\",\"type\":\"uint256\"}],\"name\":\"set\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol\":\"dapp\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol\":{\"keccak256\":\"0x8f4f318ecb4411fbe108e5fcf0be26b1375f2f77473a6569db5f91dc9beb4c60\",\"urls\":[\"bzz-raw://e221c7be18666dd450940d198e89ce64305b7e875bb87ba6388c6075ff6b24ae\",\"dweb:/ipfs/QmSgs1WKqgmEp9jBc7qbQr3YMrL6GiaueqM3Vkh7yxnPKd\"]},\"/Users/xiongyu/conflux-sponsor-faucet/contracts/InternalContract.sol\":{\"keccak256\":\"0x9c1b4970571188e756675c11f02290875340123dc6dd5bdf7ae6d52372a0074a\",\"urls\":[\"bzz-raw://5e00bcc2a90dc43886235d12a3b1aba03ff17201a27804451b205add0af3df44\",\"dweb:/ipfs/QmWbV3gjbMWRGYaDDkvBCR1AyyYZEp57u1gCzfSGns2t5Q\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061030b806100206000396000f3fe608060405234801561001057600080fd5b50600436106100415760003560e01c80630a3b0a4f146100465780633465d6d51461008a5780633825d828146100e2575b600080fd5b6100886004803603602081101561005c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610130565b005b6100cc600480360360208110156100a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610277565b6040518082815260200191505060405180910390f35b61012e600480360360408110156100f857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061028f565b005b600073088800000000000000000000000000000000000190506060600160405190808252806020026020018201604052801561017b5781602001602082028038833980820191505090505b509050828160008151811061018c57fe5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff16815250508173ffffffffffffffffffffffffffffffffffffffff166310128d3e826040518263ffffffff1660e01b81526004018080602001828103825283818151815260200191508051906020019060200280838360005b8381101561023557808201518184015260208101905061021a565b5050505090500192505050600060405180830381600087803b15801561025a57600080fd5b505af115801561026e573d6000803e3d6000fd5b50505050505050565b60006020528060005260406000206000915090505481565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550505056fea265627a7a72315820892eb68b5b6a7888c5375d486e589837b260408588d84adc5e8db0c7bc5996d364736f6c634300050b0032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100415760003560e01c80630a3b0a4f146100465780633465d6d51461008a5780633825d828146100e2575b600080fd5b6100886004803603602081101561005c57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610130565b005b6100cc600480360360208110156100a057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610277565b6040518082815260200191505060405180910390f35b61012e600480360360408110156100f857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061028f565b005b600073088800000000000000000000000000000000000190506060600160405190808252806020026020018201604052801561017b5781602001602082028038833980820191505090505b509050828160008151811061018c57fe5b602002602001019073ffffffffffffffffffffffffffffffffffffffff16908173ffffffffffffffffffffffffffffffffffffffff16815250508173ffffffffffffffffffffffffffffffffffffffff166310128d3e826040518263ffffffff1660e01b81526004018080602001828103825283818151815260200191508051906020019060200280838360005b8381101561023557808201518184015260208101905061021a565b5050505090500192505050600060405180830381600087803b15801561025a57600080fd5b505af115801561026e573d6000803e3d6000fd5b50505050505050565b60006020528060005260406000206000915090505481565b806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550505056fea265627a7a72315820892eb68b5b6a7888c5375d486e589837b260408588d84adc5e8db0c7bc5996d364736f6c634300050b0032",
+  "sourceMap": "58:405:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;58:405:0;;;;;;;",
+  "deployedSourceMap": "58:405:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;58:405:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;210:251;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;210:251:0;;;;;;;;;;;;;;;;;;;:::i;:::-;;78:39;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;78:39:0;;;;;;;;;;;;;;;;;;;:::i;:::-;;;;;;;;;;;;;;;;;;;124:80;;;;;;13:2:-1;8:3;5:11;2:2;;;29:1;26;19:12;2:2;124:80:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;;210:251;257:27;311:42;257:97;;364:18;399:1;385:16;;;;;;;;;;;;;;;;;;;;;;29:2:-1;21:6;17:15;117:4;105:10;97:6;88:34;148:4;140:6;136:17;126:27;;0:157;385:16:0;;;;364:37;;418:7;411:1;413;411:4;;;;;;;;;;;;;:14;;;;;;;;;;;435:3;:16;;;452:1;435:19;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;99:1;94:3;90:11;84:18;80:1;75:3;71:11;64:39;52:2;49:1;45:10;40:15;;8:100;;;12:14;435:19:0;;;;;;;;;;;;;;;;;;;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;435:19:0;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;435:19:0;;;;210:251;;;:::o;78:39::-;;;;;;;;;;;;;;;;;:::o;124:80::-;194:3;180:6;:11;187:3;180:11;;;;;;;;;;;;;;;:17;;;;124:80;;:::o",
+  "source": "pragma solidity 0.5.11;\nimport \"./InternalContract.sol\";\n\ncontract dapp {\n    mapping(address=>uint256) public record;\n\n    function set(address key, uint256 val) public {\n        record[key] = val;\n    }\n\n    function add(address account) public {\n        SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);\n        address[] memory a = new address[](1);\n        a[0] = account;\n        cpc.addPrivilege(a);\n    }\n}",
   "sourcePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol",
   "ast": {
     "absolutePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol",
@@ -91,7 +91,7 @@
         "id": 2,
         "nodeType": "ImportDirective",
         "scope": 56,
-        "sourceUnit": 87,
+        "sourceUnit": 163,
         "src": "24:32:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -318,7 +318,7 @@
             "body": {
               "id": 53,
               "nodeType": "Block",
-              "src": "247:215:0",
+              "src": "247:214:0",
               "statements": [
                 {
                   "assignments": [
@@ -335,7 +335,7 @@
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                        "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                         "typeString": "contract SponsorWhitelistControl"
                       },
                       "typeName": {
@@ -343,10 +343,10 @@
                         "id": 25,
                         "name": "SponsorWhitelistControl",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 86,
+                        "referencedDeclaration": 162,
                         "src": "257:23:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                           "typeString": "contract SponsorWhitelistControl"
                         }
                       },
@@ -388,10 +388,10 @@
                       "name": "SponsorWhitelistControl",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 86,
+                      "referencedDeclaration": 162,
                       "src": "287:23:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_type$_t_contract$_SponsorWhitelistControl_$86_$",
+                        "typeIdentifier": "t_type$_t_contract$_SponsorWhitelistControl_$162_$",
                         "typeString": "type(contract SponsorWhitelistControl)"
                       }
                     },
@@ -405,7 +405,7 @@
                     "nodeType": "FunctionCall",
                     "src": "287:67:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                      "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                       "typeString": "contract SponsorWhitelistControl"
                     }
                   },
@@ -623,7 +623,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 34,
-                        "src": "453:1:0",
+                        "src": "452:1:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
                           "typeString": "address[] memory"
@@ -646,7 +646,7 @@
                         "referencedDeclaration": 26,
                         "src": "435:3:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                           "typeString": "contract SponsorWhitelistControl"
                         }
                       },
@@ -655,10 +655,10 @@
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
-                      "memberName": "add_privilege",
+                      "memberName": "addPrivilege",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 78,
-                      "src": "435:17:0",
+                      "referencedDeclaration": 154,
+                      "src": "435:16:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_array$_t_address_$dyn_memory_ptr_$returns$__$",
                         "typeString": "function (address[] memory) external"
@@ -672,7 +672,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "435:20:0",
+                    "src": "435:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -680,7 +680,7 @@
                   },
                   "id": 52,
                   "nodeType": "ExpressionStatement",
-                  "src": "435:20:0"
+                  "src": "435:19:0"
                 }
               ]
             },
@@ -732,17 +732,17 @@
               "src": "247:0:0"
             },
             "scope": 55,
-            "src": "210:252:0",
+            "src": "210:251:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 56,
-        "src": "58:406:0"
+        "src": "58:405:0"
       }
     ],
-    "src": "0:464:0"
+    "src": "0:463:0"
   },
   "legacyAST": {
     "absolutePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Dapp.sol",
@@ -770,7 +770,7 @@
         "id": 2,
         "nodeType": "ImportDirective",
         "scope": 56,
-        "sourceUnit": 87,
+        "sourceUnit": 163,
         "src": "24:32:0",
         "symbolAliases": [],
         "unitAlias": ""
@@ -997,7 +997,7 @@
             "body": {
               "id": 53,
               "nodeType": "Block",
-              "src": "247:215:0",
+              "src": "247:214:0",
               "statements": [
                 {
                   "assignments": [
@@ -1014,7 +1014,7 @@
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                        "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                         "typeString": "contract SponsorWhitelistControl"
                       },
                       "typeName": {
@@ -1022,10 +1022,10 @@
                         "id": 25,
                         "name": "SponsorWhitelistControl",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 86,
+                        "referencedDeclaration": 162,
                         "src": "257:23:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                           "typeString": "contract SponsorWhitelistControl"
                         }
                       },
@@ -1067,10 +1067,10 @@
                       "name": "SponsorWhitelistControl",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 86,
+                      "referencedDeclaration": 162,
                       "src": "287:23:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_type$_t_contract$_SponsorWhitelistControl_$86_$",
+                        "typeIdentifier": "t_type$_t_contract$_SponsorWhitelistControl_$162_$",
                         "typeString": "type(contract SponsorWhitelistControl)"
                       }
                     },
@@ -1084,7 +1084,7 @@
                     "nodeType": "FunctionCall",
                     "src": "287:67:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                      "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                       "typeString": "contract SponsorWhitelistControl"
                     }
                   },
@@ -1302,7 +1302,7 @@
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
                         "referencedDeclaration": 34,
-                        "src": "453:1:0",
+                        "src": "452:1:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
                           "typeString": "address[] memory"
@@ -1325,7 +1325,7 @@
                         "referencedDeclaration": 26,
                         "src": "435:3:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$86",
+                          "typeIdentifier": "t_contract$_SponsorWhitelistControl_$162",
                           "typeString": "contract SponsorWhitelistControl"
                         }
                       },
@@ -1334,10 +1334,10 @@
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
-                      "memberName": "add_privilege",
+                      "memberName": "addPrivilege",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 78,
-                      "src": "435:17:0",
+                      "referencedDeclaration": 154,
+                      "src": "435:16:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_array$_t_address_$dyn_memory_ptr_$returns$__$",
                         "typeString": "function (address[] memory) external"
@@ -1351,7 +1351,7 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "435:20:0",
+                    "src": "435:19:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
@@ -1359,7 +1359,7 @@
                   },
                   "id": 52,
                   "nodeType": "ExpressionStatement",
-                  "src": "435:20:0"
+                  "src": "435:19:0"
                 }
               ]
             },
@@ -1411,17 +1411,17 @@
               "src": "247:0:0"
             },
             "scope": 55,
-            "src": "210:252:0",
+            "src": "210:251:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 56,
-        "src": "58:406:0"
+        "src": "58:405:0"
       }
     ],
-    "src": "0:464:0"
+    "src": "0:463:0"
   },
   "compiler": {
     "name": "solc",
@@ -1429,7 +1429,7 @@
   },
   "networks": {},
   "schemaVersion": "3.2.2",
-  "updatedAt": "2020-08-20T06:48:51.071Z",
+  "updatedAt": "2020-09-25T06:24:32.016Z",
   "devdoc": {
     "methods": {}
   },

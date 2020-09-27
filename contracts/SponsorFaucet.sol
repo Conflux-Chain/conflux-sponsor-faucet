@@ -61,15 +61,6 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     function () external payable {
     }
 
-    /*** get dapp sponsored balance ***/
-    function getGasBalance(address dapp) public returns(uint256) {
-        return cpc.getSponsoredBalanceForGas(dapp);
-    }
-
-    function getCollateralBalance(address dapp) public returns(uint256) {
-        return cpc.getSponsoredBalanceForCollateral(dapp);
-    }
-
     //withdraw to specific address by amount
     function withdraw(address payable sponsor, uint256 amount) public onlyOwner nonReentrant whenPaused {
         require(address(this).balance >= amount, "amount too high");

@@ -4,29 +4,29 @@
   "metadata": "{\"compiler\":{\"version\":\"0.5.11+commit.c082d0b4\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Lib/ReentrancyGuard.sol\":\"ReentrancyGuard\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/Users/xiongyu/conflux-sponsor-faucet/contracts/Lib/ReentrancyGuard.sol\":{\"keccak256\":\"0xe7c57c6446e1b801fa96e522674e752598656bf9c6c6856cdc5061a2a18d313a\",\"urls\":[\"bzz-raw://2e5e506b44351638069e19d7d295b9725ce42a94f0bc6b8f48464f5bfd507c18\",\"dweb:/ipfs/QmWGCQHg3CwBcBF4owJZwVYAZpdVNfr5reBwqkSTFhPJSD\"]}},\"version\":1}",
   "bytecode": "0x608060405260008060006101000a81548160ff021916908315150217905550348015602957600080fd5b50603e8060376000396000f3fe6080604052600080fdfea265627a7a7231582021e6c47c488d50c5355e76f1d450a92806e1eb1b2c75713e42375cb27a13db1764736f6c634300050b0032",
   "deployedBytecode": "0x6080604052600080fdfea265627a7a7231582021e6c47c488d50c5355e76f1d450a92806e1eb1b2c75713e42375cb27a13db1764736f6c634300050b0032",
-  "sourceMap": "25:538:3:-;;;107:5;85:27;;;;;;;;;;;;;;;;;;;;25:538;8:9:-1;5:2;;;30:1;27;20:12;5:2;25:538:3;;;;;;;",
-  "deployedSourceMap": "25:538:3:-;;;;;",
+  "sourceMap": "25:538:2:-;;;107:5;85:27;;;;;;;;;;;;;;;;;;;;25:538;8:9:-1;5:2;;;30:1;27;20:12;5:2;25:538:2;;;;;;;",
+  "deployedSourceMap": "25:538:2:-;;;;;",
   "source": "pragma solidity 0.5.11;\n\ncontract ReentrancyGuard {\n    // Locked state of mutex\n    bool private locked = false;\n\n    /// @dev Functions with this modifer cannot be reentered. The mutex will be locked\n    ///      before function execution and unlocked after.\n    modifier nonReentrant() {\n        // Ensure mutex is unlocked\n        require(!locked, \"REENTRANCY_ILLEGAL\");\n\n        // Lock mutex before function call\n        locked = true;\n\n        // Perform function call\n        _;\n\n        // Unlock mutex after function call\n        locked = false;\n    }\n}\n",
   "sourcePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Lib/ReentrancyGuard.sol",
   "ast": {
     "absolutePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Lib/ReentrancyGuard.sol",
     "exportedSymbols": {
       "ReentrancyGuard": [
-        297
+        186
       ]
     },
-    "id": 298,
+    "id": 187,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 275,
+        "id": 164,
         "literals": [
           "solidity",
           "0.5",
           ".11"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:3"
+        "src": "0:23:2"
       },
       {
         "baseContracts": [],
@@ -34,20 +34,20 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 297,
+        "id": 186,
         "linearizedBaseContracts": [
-          297
+          186
         ],
         "name": "ReentrancyGuard",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 278,
+            "id": 167,
             "name": "locked",
             "nodeType": "VariableDeclaration",
-            "scope": 297,
-            "src": "85:27:3",
+            "scope": 186,
+            "src": "85:27:2",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -55,10 +55,10 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 276,
+              "id": 165,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
-              "src": "85:4:3",
+              "src": "85:4:2",
               "typeDescriptions": {
                 "typeIdentifier": "t_bool",
                 "typeString": "bool"
@@ -67,14 +67,14 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "66616c7365",
-              "id": 277,
+              "id": 166,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "bool",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "107:5:3",
+              "src": "107:5:2",
               "subdenomination": null,
               "typeDescriptions": {
                 "typeIdentifier": "t_bool",
@@ -86,9 +86,9 @@
           },
           {
             "body": {
-              "id": 295,
+              "id": 184,
               "nodeType": "Block",
-              "src": "289:272:3",
+              "src": "289:272:2",
               "statements": [
                 {
                   "expression": {
@@ -96,7 +96,7 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 282,
+                        "id": 171,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -104,15 +104,15 @@
                         "nodeType": "UnaryOperation",
                         "operator": "!",
                         "prefix": true,
-                        "src": "343:7:3",
+                        "src": "343:7:2",
                         "subExpression": {
                           "argumentTypes": null,
-                          "id": 281,
+                          "id": 170,
                           "name": "locked",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 278,
-                          "src": "344:6:3",
+                          "referencedDeclaration": 167,
+                          "src": "344:6:2",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bool",
                             "typeString": "bool"
@@ -126,14 +126,14 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "5245454e5452414e43595f494c4c4547414c",
-                        "id": 283,
+                        "id": 172,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "352:20:3",
+                        "src": "352:20:2",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_adc5a435f597dc53b867636504fa90da5707dedb5941f76aa8a56bad68e5f488",
@@ -153,21 +153,21 @@
                           "typeString": "literal_string \"REENTRANCY_ILLEGAL\""
                         }
                       ],
-                      "id": 280,
+                      "id": 169,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        984,
-                        985
+                        1230,
+                        1231
                       ],
-                      "referencedDeclaration": 985,
-                      "src": "335:7:3",
+                      "referencedDeclaration": 1231,
+                      "src": "335:7:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 284,
+                    "id": 173,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -175,32 +175,32 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "335:38:3",
+                    "src": "335:38:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 285,
+                  "id": 174,
                   "nodeType": "ExpressionStatement",
-                  "src": "335:38:3"
+                  "src": "335:38:2"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 288,
+                    "id": 177,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 286,
+                      "id": 175,
                       "name": "locked",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 278,
-                      "src": "427:6:3",
+                      "referencedDeclaration": 167,
+                      "src": "427:6:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
@@ -211,14 +211,14 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "74727565",
-                      "id": 287,
+                      "id": 176,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
                       "kind": "bool",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "436:4:3",
+                      "src": "436:4:2",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -226,37 +226,37 @@
                       },
                       "value": "true"
                     },
-                    "src": "427:13:3",
+                    "src": "427:13:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 289,
+                  "id": 178,
                   "nodeType": "ExpressionStatement",
-                  "src": "427:13:3"
+                  "src": "427:13:2"
                 },
                 {
-                  "id": 290,
+                  "id": 179,
                   "nodeType": "PlaceholderStatement",
-                  "src": "484:1:3"
+                  "src": "484:1:2"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 293,
+                    "id": 182,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 291,
+                      "id": 180,
                       "name": "locked",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 278,
-                      "src": "540:6:3",
+                      "referencedDeclaration": 167,
+                      "src": "540:6:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
@@ -267,14 +267,14 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "66616c7365",
-                      "id": 292,
+                      "id": 181,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
                       "kind": "bool",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "549:5:3",
+                      "src": "549:5:2",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -282,57 +282,57 @@
                       },
                       "value": "false"
                     },
-                    "src": "540:14:3",
+                    "src": "540:14:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 294,
+                  "id": 183,
                   "nodeType": "ExpressionStatement",
-                  "src": "540:14:3"
+                  "src": "540:14:2"
                 }
               ]
             },
             "documentation": "@dev Functions with this modifer cannot be reentered. The mutex will be locked\n      before function execution and unlocked after.",
-            "id": 296,
+            "id": 185,
             "name": "nonReentrant",
             "nodeType": "ModifierDefinition",
             "parameters": {
-              "id": 279,
+              "id": 168,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "286:2:3"
+              "src": "286:2:2"
             },
-            "src": "265:296:3",
+            "src": "265:296:2",
             "visibility": "internal"
           }
         ],
-        "scope": 298,
-        "src": "25:538:3"
+        "scope": 187,
+        "src": "25:538:2"
       }
     ],
-    "src": "0:564:3"
+    "src": "0:564:2"
   },
   "legacyAST": {
     "absolutePath": "/Users/xiongyu/conflux-sponsor-faucet/contracts/Lib/ReentrancyGuard.sol",
     "exportedSymbols": {
       "ReentrancyGuard": [
-        297
+        186
       ]
     },
-    "id": 298,
+    "id": 187,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 275,
+        "id": 164,
         "literals": [
           "solidity",
           "0.5",
           ".11"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:23:3"
+        "src": "0:23:2"
       },
       {
         "baseContracts": [],
@@ -340,20 +340,20 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 297,
+        "id": 186,
         "linearizedBaseContracts": [
-          297
+          186
         ],
         "name": "ReentrancyGuard",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 278,
+            "id": 167,
             "name": "locked",
             "nodeType": "VariableDeclaration",
-            "scope": 297,
-            "src": "85:27:3",
+            "scope": 186,
+            "src": "85:27:2",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -361,10 +361,10 @@
               "typeString": "bool"
             },
             "typeName": {
-              "id": 276,
+              "id": 165,
               "name": "bool",
               "nodeType": "ElementaryTypeName",
-              "src": "85:4:3",
+              "src": "85:4:2",
               "typeDescriptions": {
                 "typeIdentifier": "t_bool",
                 "typeString": "bool"
@@ -373,14 +373,14 @@
             "value": {
               "argumentTypes": null,
               "hexValue": "66616c7365",
-              "id": 277,
+              "id": 166,
               "isConstant": false,
               "isLValue": false,
               "isPure": true,
               "kind": "bool",
               "lValueRequested": false,
               "nodeType": "Literal",
-              "src": "107:5:3",
+              "src": "107:5:2",
               "subdenomination": null,
               "typeDescriptions": {
                 "typeIdentifier": "t_bool",
@@ -392,9 +392,9 @@
           },
           {
             "body": {
-              "id": 295,
+              "id": 184,
               "nodeType": "Block",
-              "src": "289:272:3",
+              "src": "289:272:2",
               "statements": [
                 {
                   "expression": {
@@ -402,7 +402,7 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 282,
+                        "id": 171,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -410,15 +410,15 @@
                         "nodeType": "UnaryOperation",
                         "operator": "!",
                         "prefix": true,
-                        "src": "343:7:3",
+                        "src": "343:7:2",
                         "subExpression": {
                           "argumentTypes": null,
-                          "id": 281,
+                          "id": 170,
                           "name": "locked",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 278,
-                          "src": "344:6:3",
+                          "referencedDeclaration": 167,
+                          "src": "344:6:2",
                           "typeDescriptions": {
                             "typeIdentifier": "t_bool",
                             "typeString": "bool"
@@ -432,14 +432,14 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "5245454e5452414e43595f494c4c4547414c",
-                        "id": 283,
+                        "id": 172,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "string",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "352:20:3",
+                        "src": "352:20:2",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_stringliteral_adc5a435f597dc53b867636504fa90da5707dedb5941f76aa8a56bad68e5f488",
@@ -459,21 +459,21 @@
                           "typeString": "literal_string \"REENTRANCY_ILLEGAL\""
                         }
                       ],
-                      "id": 280,
+                      "id": 169,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        984,
-                        985
+                        1230,
+                        1231
                       ],
-                      "referencedDeclaration": 985,
-                      "src": "335:7:3",
+                      "referencedDeclaration": 1231,
+                      "src": "335:7:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
                         "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 284,
+                    "id": 173,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -481,32 +481,32 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "335:38:3",
+                    "src": "335:38:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_tuple$__$",
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 285,
+                  "id": 174,
                   "nodeType": "ExpressionStatement",
-                  "src": "335:38:3"
+                  "src": "335:38:2"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 288,
+                    "id": 177,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 286,
+                      "id": 175,
                       "name": "locked",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 278,
-                      "src": "427:6:3",
+                      "referencedDeclaration": 167,
+                      "src": "427:6:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
@@ -517,14 +517,14 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "74727565",
-                      "id": 287,
+                      "id": 176,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
                       "kind": "bool",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "436:4:3",
+                      "src": "436:4:2",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -532,37 +532,37 @@
                       },
                       "value": "true"
                     },
-                    "src": "427:13:3",
+                    "src": "427:13:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 289,
+                  "id": 178,
                   "nodeType": "ExpressionStatement",
-                  "src": "427:13:3"
+                  "src": "427:13:2"
                 },
                 {
-                  "id": 290,
+                  "id": 179,
                   "nodeType": "PlaceholderStatement",
-                  "src": "484:1:3"
+                  "src": "484:1:2"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 293,
+                    "id": 182,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 291,
+                      "id": 180,
                       "name": "locked",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 278,
-                      "src": "540:6:3",
+                      "referencedDeclaration": 167,
+                      "src": "540:6:2",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
                         "typeString": "bool"
@@ -573,14 +573,14 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "66616c7365",
-                      "id": 292,
+                      "id": 181,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
                       "kind": "bool",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "549:5:3",
+                      "src": "549:5:2",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_bool",
@@ -588,37 +588,37 @@
                       },
                       "value": "false"
                     },
-                    "src": "540:14:3",
+                    "src": "540:14:2",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
                     }
                   },
-                  "id": 294,
+                  "id": 183,
                   "nodeType": "ExpressionStatement",
-                  "src": "540:14:3"
+                  "src": "540:14:2"
                 }
               ]
             },
             "documentation": "@dev Functions with this modifer cannot be reentered. The mutex will be locked\n      before function execution and unlocked after.",
-            "id": 296,
+            "id": 185,
             "name": "nonReentrant",
             "nodeType": "ModifierDefinition",
             "parameters": {
-              "id": 279,
+              "id": 168,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "286:2:3"
+              "src": "286:2:2"
             },
-            "src": "265:296:3",
+            "src": "265:296:2",
             "visibility": "internal"
           }
         ],
-        "scope": 298,
-        "src": "25:538:3"
+        "scope": 187,
+        "src": "25:538:2"
       }
     ],
-    "src": "0:564:3"
+    "src": "0:564:2"
   },
   "compiler": {
     "name": "solc",
@@ -626,7 +626,7 @@
   },
   "networks": {},
   "schemaVersion": "3.2.2",
-  "updatedAt": "2020-08-13T03:18:18.350Z",
+  "updatedAt": "2020-09-25T06:24:32.019Z",
   "devdoc": {
     "methods": {}
   },
