@@ -108,8 +108,6 @@ class Faucet {
         await this.tryTransact(this.faucet.withdraw, [address, amount]);
     }
 
-    async setBound(gasBound, co)
-
     /**
      * @dev force pause
      */
