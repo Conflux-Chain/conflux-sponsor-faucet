@@ -95,7 +95,7 @@ class Faucet {
         await this.tryTransact(this.faucet.applyForGas, [dapp]);
     }
 
-    async applyForCollateral() {
+    async applyForCollateral(dapp) {
         await this.tryTransact(this.faucet.applyForCollateral, [dapp]);
     }
 

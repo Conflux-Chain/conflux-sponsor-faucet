@@ -1,6 +1,7 @@
 const {Conflux} = require('js-conflux-sdk');
 const BigNumber = require('bignumber.js');
-const faucetABI = require('./build/contracts/SponsorFaucet.json');
+const faucet_contract = require('./build/contracts/SponsorFaucet.json');
+const cpc_contract = require('./build/contracts/SponsorWhitelistControl.json');
 
 class Faucet {
     /**
@@ -10,46 +11,87 @@ class Faucet {
      */
     constructor(url, address) {
         this.cfx = new Conflux({url: url});
-        this.proxy = this.cfx.Contract({
-            abi: faucetABI.abi,
+        this.faucet = this.cfx.Contract({
+            abi: faucet_contract.abi,
             address: address,
+        });
+        this.cpc = this.cfx.Contract({
+            abi: cpc_contract.abi,
+            address: "0x0888000000000000000000000000000000000001",
         });
     }
 
-    /**
-     * @dev apply to be sponsored
-     * @param dapp The address of dapp 
-     * @param address The sender address of apply message
-     */
-    async apply(dapp, address) {
-        let nonce = Number(await this.cfx.getNextNonce(address));
-        let estimateData = await this.proxy.applyFor(dapp).estimateGasAndCollateral();
-        let gas = new BigNumber(estimateData.gasUsed)
+    async tryWrapTx(call_func, params) {
+        let estimateData = await call_func(...params).estimateGasAndCollateral();
+        let gas;
+        if (call_func === this.faucet.withdraw) {
+            gas = new BigNumber(estimateData.gasUsed)
+            .multipliedBy(1.8)
+            .integerValue()
+            .toString();
+        } else {
+            gas = new BigNumber(estimateData.gasUsed)
             .multipliedBy(1.3)
             .integerValue()
             .toString();
-        let data = this.proxy.applyFor(dapp).data;
-        let tx = {
-            from: address,
-            to: this.proxy.address,
-            gas: gas,
-            gasPrice: 1,
-            nonce: nonce,
-            data : data,
-            value: 0,
         }
-        return tx;
+        let data = call_func(...params).data;
+        let rawTx = {
+            gas: gas,
+            data: data,
+        };
+        return rawTx;
     }
 
-    /*** TBA ***/
-    async getGasBalance(dapp) {
-        let val = Number(await this.proxy.getGasBalance(dapp).call());
-        return val;
+    async apply(dapp) {
+        return await this.tryWrapTx(this.faucet.applyFor, [dapp]);
     }
 
-    async getCollateralBalance(dapp) {
-        let val = Number(await this.proxy.getCollateralBalance(dapp).call());
-        return val; 
+    async applyForGas(dapp) {
+        return await this.tryWrapTx(this.faucet.applyForGas, [dapp]);
+    }
+
+    async applyForCollateral(dapp) {
+        return await this.tryWrapTx(this.faucet.applyForCollateral, [dapp]);
+    }
+    
+    async withdraw(address, amount) {
+        return await this.tryWrapTx(this.faucet.withdraw, [address, amount]);
+    }
+
+    async pause() {
+        return await this.tryWrapTx(this.faucet.pause, []);
+    }
+
+    /**
+     * @dev query functions 
+     */
+    async getSponsorForGas(dapp) {
+        return await this.tryWrapTx(this.cpc.getSponsorForGas, [dapp]);
+    }
+
+    async getSponsoredBalanceForGas(dapp) {
+        return await this.tryWrapTx(this.cpc.getSponsoredBalanceForGas, [dapp]);
+    }
+
+    async getSponsoredGasFeeUpperBound(dapp) {
+        return  await this.tryWrapTx(this.cpc.getSponsoredGasFeeUpperBound, [dapp]);
+    }
+
+    async getSponsorForCollateral(dapp) {
+        return await this.tryWrapTx(this.cpc.getSponsorForCollateral, [dapp]);
+    }
+
+    async getSponsoredBalanceForCollateral(dapp) {
+        return await this.tryWrapTx(this.cpc.getSponsoredBalanceForCollateral, [dapp]);
+    }
+
+    async isWhitelisted(dapp, user) {
+        return await this.tryWrapTx(this.cpc.isWhitelisted, [dapp, user]);
+    }
+
+    async isAllWhitelisted(dapp) {
+        return await this.tryWrapTx(this.cpc.isAllWhitelisted, [dapp]);
     }
 }
 
