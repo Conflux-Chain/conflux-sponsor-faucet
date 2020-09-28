@@ -10,9 +10,9 @@ import "./InternalContract.sol";
 contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
     struct detail {
-        uint256 gas_cnt;
-        uint256 collateral_cnt;
-        uint256 limit;
+        uint256 gas_cnt; //counter for gas application
+        uint256 collateral_cnt; //counter for collateral application
+        uint256 limit; //total applied amount
     }
 
     //single sponsor bound
@@ -20,9 +20,10 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     uint256 public collateral_bound;
     //upper bound for single tx
     uint256 public upper_bound;
+    
     mapping(address=>detail) public dapps;
     
-    event applied(address indexed applicant, address indexed dapp, uint256 indexed upper_bound);
+    event applied(address indexed applicant, address indexed dapp, uint256 indexed amount);
     
     SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
     
@@ -36,7 +37,6 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     /*** Dapp dev calls ***/ 
     //apply cfx for gas & storage
     function applyFor(address dapp) public nonReentrant whenNotPaused {
-        //todo: internal contract require check
         cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].gas_cnt.add(1);
@@ -49,12 +49,14 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         dapps[dapp].gas_cnt.add(1);
         dapps[dapp].limit.add(gas_bound);
+        emit applied(msg.sender, dapp, upper_bound);
     }
 
     function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
         cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].collateral_cnt.add(1);
         dapps[dapp].limit.add(collateral_bound);
+        emit applied(msg.sender, dapp, collateral_bound);
     }
 
     //accept sponsor's cfx
@@ -64,7 +66,6 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     //withdraw to specific address by amount
     function withdraw(address payable sponsor, uint256 amount) public onlyOwner nonReentrant whenPaused {
         require(address(this).balance >= amount, "amount too high");
-        //require(sponsor.send(amount), "withdraw failed");
         (bool success, ) = sponsor.call.value(amount)("");
         require(success, "withdraw failed");
     }

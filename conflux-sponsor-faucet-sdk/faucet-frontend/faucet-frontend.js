@@ -1,7 +1,13 @@
 const {Conflux} = require('js-conflux-sdk');
 const BigNumber = require('bignumber.js');
+//sponsor faucet contract abi
 const faucet_contract = require('./build/contracts/SponsorFaucet.json');
+//conflux built-in internal contract for Sponsorship
 const cpc_contract = require('./build/contracts/SponsorWhitelistControl.json');
+
+//suggested factor to make sure gas is enough
+const suggested_withdraw_factor = 1.8;
+const suggested_factor = 1.3;
 
 class Faucet {
     /**
@@ -21,17 +27,22 @@ class Faucet {
         });
     }
 
+    /**
+     * @dev wrap and return { gas: suggestedGas, data: contractCall }  
+     * @param call_func contract function
+     * @param params params of contract function 
+     */
     async tryWrapTx(call_func, params) {
         let estimateData = await call_func(...params).estimateGasAndCollateral();
         let gas;
         if (call_func === this.faucet.withdraw) {
             gas = new BigNumber(estimateData.gasUsed)
-            .multipliedBy(1.8)
+            .multipliedBy(suggested_withdraw_factor) //suggested value to make sure withdraw won't fail
             .integerValue()
             .toString();
         } else {
             gas = new BigNumber(estimateData.gasUsed)
-            .multipliedBy(1.3)
+            .multipliedBy(suggested_factor) //suggested value
             .integerValue()
             .toString();
         }
@@ -43,55 +54,44 @@ class Faucet {
         return rawTx;
     }
 
+    /**
+     * @dev apply to be sponsored
+     * @param dapp The address of dapp
+     */
     async apply(dapp) {
         return await this.tryWrapTx(this.faucet.applyFor, [dapp]);
     }
 
+    /**
+     * @dev apply for gas
+     * @param dapp The address of dapp
+     */
     async applyForGas(dapp) {
         return await this.tryWrapTx(this.faucet.applyForGas, [dapp]);
     }
 
+    /**
+     * @dev apply for collateral
+     * @param dapp The address of dapp 
+     */
     async applyForCollateral(dapp) {
         return await this.tryWrapTx(this.faucet.applyForCollateral, [dapp]);
     }
     
+    /**
+     * @dev withdraw from faucet 
+     * @param address address to accept fund
+     * @param amount amount to withdraw
+     */
     async withdraw(address, amount) {
         return await this.tryWrapTx(this.faucet.withdraw, [address, amount]);
     }
 
+    /**
+     * @dev pause faucet
+     */
     async pause() {
         return await this.tryWrapTx(this.faucet.pause, []);
-    }
-
-    /**
-     * @dev query functions 
-     */
-    async getSponsorForGas(dapp) {
-        return await this.tryWrapTx(this.cpc.getSponsorForGas, [dapp]);
-    }
-
-    async getSponsoredBalanceForGas(dapp) {
-        return await this.tryWrapTx(this.cpc.getSponsoredBalanceForGas, [dapp]);
-    }
-
-    async getSponsoredGasFeeUpperBound(dapp) {
-        return  await this.tryWrapTx(this.cpc.getSponsoredGasFeeUpperBound, [dapp]);
-    }
-
-    async getSponsorForCollateral(dapp) {
-        return await this.tryWrapTx(this.cpc.getSponsorForCollateral, [dapp]);
-    }
-
-    async getSponsoredBalanceForCollateral(dapp) {
-        return await this.tryWrapTx(this.cpc.getSponsoredBalanceForCollateral, [dapp]);
-    }
-
-    async isWhitelisted(dapp, user) {
-        return await this.tryWrapTx(this.cpc.isWhitelisted, [dapp, user]);
-    }
-
-    async isAllWhitelisted(dapp) {
-        return await this.tryWrapTx(this.cpc.isAllWhitelisted, [dapp]);
     }
 }
 
