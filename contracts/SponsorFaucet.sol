@@ -12,7 +12,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     struct detail {
         uint256 gas_cnt; //counter for gas application
         uint256 collateral_cnt; //counter for collateral application
-        uint256 limit; //total applied amount
+        uint256 total_applied; //total applied amount
     }
 
     //single sponsor bound
@@ -35,27 +35,21 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
      
     /*** Dapp dev calls ***/ 
-    //apply cfx for gas & storage
-    function applyFor(address dapp) public nonReentrant whenNotPaused {
-        cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
-        cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
-        dapps[dapp].gas_cnt.add(1);
-        dapps[dapp].collateral_cnt.add(1);
-        dapps[dapp].limit.add(gas_bound.add(collateral_bound));
-        emit applied(msg.sender, dapp, upper_bound);
-    }
-
     function applyForGas(address dapp) public nonReentrant whenNotPaused {
+        require(address(this).balance >= gas_bound, "faucet out of money");
+        require(cpc.getSponsoredBalanceForGas(dapp) < gas_bound, "sponsor value too low");
         cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         dapps[dapp].gas_cnt.add(1);
-        dapps[dapp].limit.add(gas_bound);
+        dapps[dapp].total_applied.add(gas_bound);
         emit applied(msg.sender, dapp, upper_bound);
     }
 
     function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
+        require(address(this).balance >= collateral_bound, "faucet out of money");
+        require(cpc.getSponsoredBalanceForGas(dapp) < collateral_bound, "sponsor value too low");
         cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].collateral_cnt.add(1);
-        dapps[dapp].limit.add(collateral_bound);
+        dapps[dapp].total_applied.add(collateral_bound);
         emit applied(msg.sender, dapp, collateral_bound);
     }
 
@@ -70,7 +64,8 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         require(success, "withdraw failed");
     }
 
-    function setBound(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public onlyOwner {
+    //set bounds for sponsorship
+    function setBounds(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public onlyOwner {
         require(upperBound.mul(1000) <= gasBound, 'upperBound too high');
         gas_bound = gasBound;
         collateral_bound = collateralBound;
