@@ -37,7 +37,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     /*** Dapp dev calls ***/ 
     function applyForGas(address dapp) public nonReentrant whenNotPaused {
         require(address(this).balance >= gas_bound, "faucet out of money");
-        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < gas_bound, "sponsor value too low");
+        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < gas_bound, "sponsored fund unused");
         internal_sponsor_faucet.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         dapps[dapp].gas_cnt.add(1);
         dapps[dapp].total_applied.add(gas_bound);
@@ -46,7 +46,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
 
     function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
         require(address(this).balance >= collateral_bound, "faucet out of money");
-        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < collateral_bound, "sponsor value too low");
+        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < collateral_bound, "sponsored fund unused");
         internal_sponsor_faucet.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].collateral_cnt.add(1);
         dapps[dapp].total_applied.add(collateral_bound);
