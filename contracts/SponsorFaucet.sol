@@ -25,7 +25,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     
     event applied(address indexed applicant, address indexed dapp, uint256 indexed amount);
     
-    SponsorWhitelistControl cpc = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
+    SponsorWhitelistControl internal_sponsor_faucet = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
     
     constructor(uint256 gasBound, uint256 collateralBound, uint256 upperBound) public {
         require(upperBound.mul(1000) <= gasBound, 'upperBound too high');
@@ -37,8 +37,8 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     /*** Dapp dev calls ***/ 
     function applyForGas(address dapp) public nonReentrant whenNotPaused {
         require(address(this).balance >= gas_bound, "faucet out of money");
-        require(cpc.getSponsoredBalanceForGas(dapp) < gas_bound, "sponsor value too low");
-        cpc.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
+        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < gas_bound, "sponsor value too low");
+        internal_sponsor_faucet.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         dapps[dapp].gas_cnt.add(1);
         dapps[dapp].total_applied.add(gas_bound);
         emit applied(msg.sender, dapp, upper_bound);
@@ -46,8 +46,8 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
 
     function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
         require(address(this).balance >= collateral_bound, "faucet out of money");
-        require(cpc.getSponsoredBalanceForGas(dapp) < collateral_bound, "sponsor value too low");
-        cpc.setSponsorForCollateral.value(collateral_bound)(dapp);
+        require(internal_sponsor_faucet.getSponsoredBalanceForGas(dapp) < collateral_bound, "sponsor value too low");
+        internal_sponsor_faucet.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].collateral_cnt.add(1);
         dapps[dapp].total_applied.add(collateral_bound);
         emit applied(msg.sender, dapp, collateral_bound);
