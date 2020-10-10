@@ -3,61 +3,57 @@
 A faucet for sponsoring contracts running on Conflux Chain. Before your apply, make sure you understand how the [internal contracts](https://github.com/Conflux-Chain/conflux-rust/tree/master/internal_contract) works.
 
 ## Conflux SponsorFaucet SDK
-### Frontend
+The **SponsorFaucet** returns a **rawTx** with suggested gas and input data. 
 
-The **faucet-frontend** works with conflux portal.
+1. Constructor for faucet
+   ```js
+   /**
+    * @param url The conflux provider url 
+    * @param address The faucet contract address
+    */
+   constructor(url, address)
+   ```
 
-Constructor for faucet
+2. apply gas sponsorship 
 
-```js
-/**
- * @param url The conflux provider url 
- * @param address The faucet contract address
- */
-constructor(url, address)
-```
-apply to be sponsored, returns transaction with payload data 
-```js
-/**
- * @param dapp The address of dapp 
- * @param address The sender address of apply message
- */
-async apply(dapp, address) -> tx
-```
+   ```js
+   /**
+    * @param dapp The address of dapp 
+    */
+   async applyForGas(dapp) -> rawTx
+   ```
 
-### Backend
+3. apply collateral sponsorship
 
-The **faucet-backend** supports importing privatekey and apply for sponsor. 
+   ```js
+   /**
+    * @param dapp The address of dapp 
+    */
+   async applyForCollateral(dapp) -> rawTx
+   ```
+4. withdraw from faucet
 
-Constructor for faucet
+   ```js
+    /**
+    * @param address address to accept fund 
+    * @param amount amount to withdraw
+    */
+   async withdraw(address, amount) -> rawTx
+   ```
+5. set bounds for sponsorship
 
-```js
-/**
- * @param url The conflux provider url
- * @param address The faucet contract address 
- * @param privatekey The privatekey begins with '0x'
- */
-constructor(url, address, privatekey)
-```
-apply to be sponsored
+   ```js
+   /**
+    * @param gasBound single sponsor gas bound
+    * @param collateralBound single sponsor collateral bound
+    * @param upperBound upperBound for single tx gas
+    */
+   async setBounds(gasBound, collateralBound, upperBound) -> rawTx
+   ```
 
-```js
-/**
- * @param dapp The address of dapp 
- */
-async apply(dapp)
-```
-withdraw from faucet
+6. pause/unpause the faucet
 
-```js
-/**
- * @param address The sponsor faucet address 
- * @param amount The amout to be withdrawn
- */
-async withdraw(address, amount)
-```
-pause the faucet
-
-```js
-async pause()
-```
+   ```js
+   async pause() -> rawTx
+   async unpause() -> rawTx
+   ```

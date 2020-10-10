@@ -1,4 +1,4 @@
-const Faucet = require('faucet-frontend');
+const Faucet = require('faucet');
 const BigNumber = require('bignumber.js');
 const Conflux = require('js-conflux-sdk');
 
@@ -26,7 +26,7 @@ async function main() {
         value: 0, 
      }
     */
-    let tx = await faucet.apply(dappAddress);
+    let tx = await faucet.applyForGas(dapp, address);
 
     //sign and send transaction
 }
