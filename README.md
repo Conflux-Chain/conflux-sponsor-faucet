@@ -44,11 +44,13 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
 
    ```js
    /**
+    * @param gasTotalLimit total sponsored gas limit
+    * @param collateralTotalLimit total sponsored collateral limit
     * @param gasBound single sponsor gas bound
     * @param collateralBound single sponsor collateral bound
     * @param upperBound upperBound for single tx gas
     */
-   async setBounds(gasBound, collateralBound, upperBound) -> rawTx
+   async setBounds(gasTotalLimit, collateralTotalLimit, gasBound, collateralBound, upperBound) -> rawTx
    ```
 
 6. pause/unpause the faucet
