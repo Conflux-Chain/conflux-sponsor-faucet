@@ -40,21 +40,39 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
      
     /*** Dapp dev calls ***/ 
-    function applyForGas(address dapp) public nonReentrant whenNotPaused {
+    function apply(address dapp) public nonReentrant whenNotPaused {
+        if(_isAppliableForGas(dapp)) _applyForGas(dapp);
+        if(_isAppliableForCollateral(dapp)) _applyForCollateral(dapp);
+    }
+
+    function isAppliable(address dapp) public {
+        if(_isAppliableForGas(dapp) || _isAppliableForCollateral(dapp)) return true;
+    }
+
+    function _isAppliableForGas(address dapp) internal {
         require(address(this).balance >= gas_bound, "faucet out of money");
         uint256 gas_balance = internal_sponsor_faucet.getSponsoredBalanceForGas(dapp);
         require(gas_balance < gas_bound, "sponsored fund unused");
         require(dapps[dapp].gas_amount < gas_total_limit, "over gas total limit");
+        return true;
+    }
+
+    function _isAppliableForCollateral(address dapp) internal {
+        require(address(this).balance >= collateral_bound, "faucet out of money");
+        uint256 collateral_balance = internal_sponsor_faucet.getSponsoredBalanceForCollateral(dapp);
+        require(collateral_balance < collateral_bound, "sponsored fund unused");
+        require(dapps[dapp].collateral_amount < collateral_total_limit, "over collateral total limit");
+    }
+
+    function _applyForGas(address dapp) internal {
+        uint256 gas_balance = internal_sponsor_faucet.getSponsoredBalanceForGas(dapp);
         internal_sponsor_faucet.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
         dapps[dapp].gas_amount.add(gas_bound).sub(gas_balance);
         emit applied(msg.sender, dapp, gas_bound);
     }
 
-    function applyForCollateral(address dapp) public nonReentrant whenNotPaused {
-        require(address(this).balance >= collateral_bound, "faucet out of money");
+    function _applyForCollateral(address dapp) public nonReentrant whenNotPaused {
         uint256 collateral_balance = internal_sponsor_faucet.getSponsoredBalanceForCollateral(dapp);
-        require(collateral_balance < collateral_bound, "sponsored fund unused");
-        require(dapps[dapp].collateral_amount < collateral_total_limit, "over collateral total limit");
         internal_sponsor_faucet.setSponsorForCollateral.value(collateral_bound)(dapp);
         dapps[dapp].collateral_amount.add(collateral_bound).sub(collateral_balance);
         emit applied(msg.sender, dapp, collateral_bound);

@@ -14,22 +14,22 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    constructor(url, address)
    ```
 
-2. apply gas sponsorship 
+2. apply gas / collateral sponsorship 
 
    ```js
    /**
     * @param dapp The address of dapp 
     */
-   async applyForGas(dapp) -> rawTx
+   async apply(dapp) -> rawTx
    ```
 
-3. apply collateral sponsorship
+3. check if appliable
 
    ```js
    /**
     * @param dapp The address of dapp 
     */
-   async applyForCollateral(dapp) -> rawTx
+   async isAppliable(dapp) -> bool
    ```
 4. withdraw from faucet
 
@@ -59,3 +59,28 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    async pause() -> rawTx
    async unpause() -> rawTx
    ```
+
+7. get bounds and limits of faucet
+
+   ```js
+   async getFaucetParams() -> 
+     {
+     	gas_total_limit: JSBI,
+     	collateral_total_limit: JSBI,
+     	gas_bound: JSBI,
+     	collateral_bound: JSBI,
+       upper_bound: JSBI
+   	}
+   ```
+
+8. get total sponsored amouts of a contract/dapp
+
+   ```js
+   async getTotalAmount(dapp) -> 
+     {
+     	gas_amount: JSBI,
+     	collateral_amount: JSBI
+     }
+   ```
+
+    
