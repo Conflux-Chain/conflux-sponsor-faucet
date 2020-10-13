@@ -50,19 +50,19 @@ class Faucet {
     }
 
     /**
-     * @dev apply gas sponsorship for special dapp
+     * @dev apply sponsorship for special dapp
      * @param dapp The address of dapp
      */
-    async applyForGas(dapp) {
-        return await this.estimateForContract(this.faucet.applyForGas, [dapp]);
+    async apply(dapp) {
+        return await this.estimateForContract(this.faucet.applyBoth, [dapp]);
     }
 
     /**
-     * @dev apply collateral sponsorship for special dapp
+     * @dev check if a dapp can be sponsored
      * @param dapp The address of dapp 
      */
-    async applyForCollateral(dapp) {
-        return await this.estimateForContract(this.faucet.applyForCollateral, [dapp]);
+    async isAppliale(dapp) {
+        return await this.estimateForContract(this.faucet.isAppliale, [dapp]);
     }
     
     /**
@@ -98,6 +98,32 @@ class Faucet {
      */
     async unpause() {
         return await this.estimateForContract(this.faucet.unpause, []);
+    }
+
+    /*** contract data helper ***/
+    /**
+     * @dev get bounds and limit params of faucet
+     */
+    async getFaucetParams() {
+        return {
+            gas_total_limit: await this.faucet.gas_total_limit.call(),
+            collateral_total_limit: await this.faucet.collateral_total_limit.call(),
+            gas_bound: await this.faucet.gas_bound.call(),
+            collateral_bound: await this.faucet.collateral_bound.call(),
+            upper_bound: await this.faucet.upper_bound.call()
+        }
+    }
+
+    /**
+     * @dev get current total sponsored amount of a dapp
+     * @param dapp The address of dapp
+     */
+    async getTotalAmount(dapp) {
+        let res =  await this.faucet.dapps(dapp).call();
+        return {
+            gas_amount: res[0],
+            collateral_amount: res[1]
+        }
     }
 }
 

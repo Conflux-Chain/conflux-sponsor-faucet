@@ -40,16 +40,16 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
      
     /*** Dapp dev calls ***/ 
-    function apply(address dapp) public nonReentrant whenNotPaused {
+    function applyBoth(address dapp) public nonReentrant whenNotPaused {
         if(_isAppliableForGas(dapp)) _applyForGas(dapp);
         if(_isAppliableForCollateral(dapp)) _applyForCollateral(dapp);
     }
 
-    function isAppliable(address dapp) public {
+    function isAppliable(address dapp) public returns (bool) {
         if(_isAppliableForGas(dapp) || _isAppliableForCollateral(dapp)) return true;
     }
 
-    function _isAppliableForGas(address dapp) internal {
+    function _isAppliableForGas(address dapp) internal returns (bool) {
         require(address(this).balance >= gas_bound, "faucet out of money");
         uint256 gas_balance = internal_sponsor_faucet.getSponsoredBalanceForGas(dapp);
         require(gas_balance < gas_bound, "sponsored fund unused");
@@ -57,7 +57,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         return true;
     }
 
-    function _isAppliableForCollateral(address dapp) internal {
+    function _isAppliableForCollateral(address dapp) internal returns (bool) {
         require(address(this).balance >= collateral_bound, "faucet out of money");
         uint256 collateral_balance = internal_sponsor_faucet.getSponsoredBalanceForCollateral(dapp);
         require(collateral_balance < collateral_bound, "sponsored fund unused");
