@@ -61,8 +61,8 @@ class Faucet {
      * @dev check if a dapp can be sponsored
      * @param dapp The address of dapp 
      */
-    async isAppliale(dapp) {
-        return await this.estimateForContract(this.faucet.isAppliale, [dapp]);
+    async isAppliable(dapp) {
+        return await this.estimateForContract(this.faucet.isAppliable, [dapp]);
     }
     
     /**
@@ -105,12 +105,13 @@ class Faucet {
      * @dev get bounds and limit params of faucet
      */
     async getFaucetParams() {
+        let e = await this.cfx.getEpochNumber('latest_confirmed');
         return {
-            gas_total_limit: await this.faucet.gas_total_limit.call(),
-            collateral_total_limit: await this.faucet.collateral_total_limit.call(),
-            gas_bound: await this.faucet.gas_bound.call(),
-            collateral_bound: await this.faucet.collateral_bound.call(),
-            upper_bound: await this.faucet.upper_bound.call()
+            gas_total_limit: await this.faucet.gas_total_limit().call({}, e),
+            collateral_total_limit: await this.faucet.collateral_total_limit().call({}, e),
+            gas_bound: await this.faucet.gas_bound().call({}, e),
+            collateral_bound: await this.faucet.collateral_bound().call({}, e),
+            upper_bound: await this.faucet.upper_bound().call({}, e)
         }
     }
 
@@ -122,7 +123,7 @@ class Faucet {
         let res =  await this.faucet.dapps(dapp).call();
         return {
             gas_amount: res[0],
-            collateral_amount: res[1]
+            collateral_amount: res[1],
         }
     }
 }
