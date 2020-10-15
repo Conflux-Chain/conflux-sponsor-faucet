@@ -10,8 +10,8 @@ import "./InternalContract.sol";
 contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
     struct detail {
-        uint256 gas_amount; ////current total sponsored amout for gas
-        uint256 collateral_amount; //current total sponsored amount for collateral
+        uint256 gas_amount_accumulated; ////current accumulated sponsored amout for gas
+        uint256 collateral_amount_accumulated; //current total sponsored amount for collateral
     }
 
     /*** bounds set by foundation ***/
@@ -28,7 +28,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     
     event applied(address indexed applicant, address indexed dapp, uint256 indexed amount);
     
-    SponsorWhitelistControl internal_sponsor_faucet = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
+    SponsorWhitelistControl internal_sponsor = SponsorWhitelistControl(0x0888000000000000000000000000000000000001);
     
     constructor(uint256 gasTotalLimit, uint256 collateralTotalLimit, uint256 gasBound, uint256 collateralBound, uint256 upperBound) public {
         require(upperBound.mul(1000) <= gasBound, 'upperBound too high');
@@ -60,31 +60,38 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
 
     function _isAppliableForGas(address dapp) internal returns (bool) {
         require(address(this).balance >= gas_bound, "faucet out of money");
-        uint256 gas_balance = internal_sponsor_faucet.getSponsoredBalanceForGas(dapp);
+        uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         require(gas_balance < gas_bound, "sponsored fund unused");
-        require(dapps[dapp].gas_amount < gas_total_limit, "over gas total limit");
+        require(dapps[dapp].gas_amount_accumulated < gas_total_limit, "over gas total limit");
         return true;
     }
 
     function _isAppliableForCollateral(address dapp) internal returns (bool) {
         require(address(this).balance >= collateral_bound, "faucet out of money");
-        uint256 collateral_balance = internal_sponsor_faucet.getSponsoredBalanceForCollateral(dapp);
+        uint256 collateral_balance = internal_sponsor.getSponsoredBalanceForCollateral(dapp);
         require(collateral_balance < collateral_bound, "sponsored fund unused");
-        require(dapps[dapp].collateral_amount < collateral_total_limit, "over collateral total limit");
+        require(dapps[dapp].collateral_amount_accumulated < collateral_total_limit, "over collateral total limit");
         return true;
     }
 
     function _applyForGas(address dapp) internal {
-        uint256 gas_balance = internal_sponsor_faucet.getSponsoredBalanceForGas(dapp);
-        internal_sponsor_faucet.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
-        dapps[dapp].gas_amount = dapps[dapp].gas_amount.add(gas_bound).sub(gas_balance);
+        uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
+        internal_sponsor.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
+        address last_sponsor = internal_sponsor.getSponsorForGas(dapp); 
+        
+        if(last_sponsor == address(this) || last_sponsor == address(0x0000000000000000000000000000000000000000)) {
+            dapps[dapp].gas_amount_accumulated = dapps[dapp].gas_amount_accumulated.add(gas_bound).sub(gas_balance);
+        }
         emit applied(msg.sender, dapp, gas_bound);
     }
 
     function _applyForCollateral(address dapp) internal {
-        uint256 collateral_balance = internal_sponsor_faucet.getSponsoredBalanceForCollateral(dapp);
-        internal_sponsor_faucet.setSponsorForCollateral.value(collateral_bound)(dapp);
-        dapps[dapp].collateral_amount = dapps[dapp].collateral_amount.add(collateral_bound).sub(collateral_balance);
+        uint256 collateral_balance = internal_sponsor.getSponsoredBalanceForCollateral(dapp);
+        internal_sponsor.setSponsorForCollateral.value(collateral_bound)(dapp);
+        address last_sponsor = internal_sponsor.getSponsorForCollateral(dapp);
+        if(last_sponsor == address(this) || last_sponsor == address(0x0000000000000000000000000000000000000000)) {
+            dapps[dapp].collateral_amount_accumulated = dapps[dapp].collateral_amount_accumulated.add(collateral_bound).sub(collateral_balance);
+        }
         emit applied(msg.sender, dapp, collateral_bound);
     }
 

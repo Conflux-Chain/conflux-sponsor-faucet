@@ -73,13 +73,13 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    	}
    ```
 
-8. get total sponsored amouts of a contract/dapp
+8. get accumulated sponsored amouts of a contract/dapp
 
    ```js
-   async getTotalAmount(dapp) -> 
+   async getAmountAccumulated(dapp) -> 
      {
-     	gas_amount: JSBI,
-     	collateral_amount: JSBI
+     	gas_amount_accumulated: JSBI,
+     	collateral_amount_accumulated: JSBI
      }
    ```
 

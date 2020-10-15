@@ -116,14 +116,14 @@ class Faucet {
     }
 
     /**
-     * @dev get current total sponsored amount of a dapp
+     * @dev get current accumulated sponsored amount of a dapp
      * @param dapp The address of dapp
      */
-    async getTotalAmount(dapp) {
+    async getAmountAccumulated(dapp) {
         let res =  await this.faucet.dapps(dapp).call();
         return {
-            gas_amount: res[0],
-            collateral_amount: res[1],
+            gas_amount_accumulated: res[0],
+            collateral_amount_accumulated : res[1],
         }
     }
 }
