@@ -31,8 +31,8 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
     */
    async isAppliable(dapp) -> 
    {	
-     	flag: bool, 
-   		message: string //error message and empty if success 
+     	flag: bool,
+     	message: string //error message and empty if success 
    }
    ```
 4. withdraw from faucet
@@ -68,23 +68,23 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
 
    ```js
    async getFaucetParams() -> 
-     {
+   {
      	gas_total_limit: JSBI,
      	collateral_total_limit: JSBI,
      	gas_bound: JSBI,
      	collateral_bound: JSBI,
-       upper_bound: JSBI
-   	}
+     	upper_bound: JSBI
+   }
    ```
 
 8. get accumulated sponsored amouts of a contract/dapp
 
    ```js
    async getAmountAccumulated(dapp) -> 
-     {
-     	gas_amount_accumulated: JSBI,
-     	collateral_amount_accumulated: JSBI
-     }
+   {
+    	gas_amount_accumulated: JSBI,
+    	collateral_amount_accumulated: JSBI
+   }
    ```
 
 ### ERROR CODE
