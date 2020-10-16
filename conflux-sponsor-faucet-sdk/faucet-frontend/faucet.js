@@ -54,7 +54,7 @@ class Faucet {
      * @param dapp The address of dapp
      */
     async apply(dapp) {
-        return await this.estimateForContract(this.faucet.applyBoth, [dapp]);
+        return await this.estimateForContract(this.faucet.applyGasAndCollateral, [dapp]);
     }
 
     /**
@@ -62,7 +62,30 @@ class Faucet {
      * @param dapp The address of dapp 
      */
     async isAppliable(dapp) {
-        return await this.estimateForContract(this.faucet.isAppliable, [dapp]);
+        let r; 
+        try {
+            r = await this._isAppliableCall(dapp);
+            return r;    
+        } catch(e) {
+            let message = e.toString();
+            message = message.replace(`Error: Estimation isn't accurate: transaction is reverted. Execution output Reason provided by the contract: `, "").replace(/\'/g, "");
+            return message;
+        }
+    }
+    
+    async _isAppliableCall(dapp) {
+        let rawTx = await this.estimateForContract(this.faucet.isAppliable, [dapp]);
+        let tx = {
+            to: this.faucet.address,
+            data: rawTx.data,
+        }
+        let res;
+        try {
+            res = await this.cfx.call(tx);
+            return res === '0x0000000000000000000000000000000000000000000000000000000000000001';
+        } catch (e) {
+            return e;
+        }
     }
     
     /**
