@@ -29,7 +29,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     event applied(
         address indexed applicant,
         address indexed dapp,
-        uint256 indexed amount
+        uint256 amount
     );
 
     SponsorWhitelistControl internal_sponsor = SponsorWhitelistControl(
@@ -43,6 +43,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         uint256 collateralBound,
         uint256 upperBound
     ) public {
+        //rule by internal contract
         require(upperBound.mul(1000) <= gasBound, "upperBound too high");
         gas_total_limit = gasTotalLimit;
         collateral_total_limit = collateralTotalLimit;
@@ -52,43 +53,66 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
 
     /*** Dapp dev calls ***/
-    function applyBoth(address dapp) public nonReentrant whenNotPaused {
+    function applyGasAndCollateral(address dapp)
+        public
+        nonReentrant
+        whenNotPaused
+    {
         if (_isAppliableForGas(dapp)) _applyForGas(dapp);
         if (_isAppliableForCollateral(dapp)) _applyForCollateral(dapp);
-    }
-
-    function applyGas(address dapp) public nonReentrant whenNotPaused {
-        _validateApplyForGas(dapp);
-        _applyForGas(dapp);
-    }
-
-    function applyCol(address dapp) public nonReentrant whenNotPaused {
-        _validateApplyForCollateral(dapp);
-        _applyForCollateral(dapp);
     }
 
     function isAppliable(address dapp) public returns (bool) {
         if (_isAppliableForGas(dapp) || _isAppliableForCollateral(dapp))
             return true;
+        _validateApplyForGas(dapp);
+        _validateApplyForCollateral(dapp);
     }
 
     function _isAppliableForGas(address dapp) internal returns (bool) {
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
+        address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         if (
+            current_sponsor == address(this) ||
+            current_sponsor ==
+            address(0x0000000000000000000000000000000000000000)
+        ) {
+            return
+                address(this).balance >= gas_bound &&
+                gas_balance < gas_bound &&
+                dapps[dapp].gas_amount_accumulated.add(gas_bound) <=
+                gas_total_limit;
+        }
+
+        uint256 current_upper_bound = internal_sponsor
+            .getSponsoredGasFeeUpperBound(dapp);
+        return
+            gas_balance < current_upper_bound &&
             address(this).balance >= gas_bound &&
             gas_balance < gas_bound &&
-            dapps[dapp].gas_amount_accumulated.add(gas_bound) < gas_total_limit
-        ) {
-            return true;
-        }
+            dapps[dapp].gas_amount_accumulated.add(gas_bound) <=
+            gas_total_limit;
     }
 
     function _validateApplyForGas(address dapp) internal {
-        require(address(this).balance >= gas_bound, "faucet out of money");
+        address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
+        if (
+            current_sponsor != address(this) &&
+            current_sponsor !=
+            address(0x0000000000000000000000000000000000000000)
+        ) {
+            require(
+                gas_balance <
+                    internal_sponsor.getSponsoredGasFeeUpperBound(dapp),
+                "can not replace 3rd party sponsor"
+            );
+        }
+        require(address(this).balance >= gas_bound, "faucet out of money");
         require(gas_balance < gas_bound, "sponsored fund unused");
         require(
-            dapps[dapp].gas_amount_accumulated.add(gas_bound) < gas_total_limit,
+            dapps[dapp].gas_amount_accumulated.add(gas_bound) <=
+                gas_total_limit,
             "over gas total limit"
         );
     }
@@ -99,7 +123,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         if (
             address(this).balance >= collateral_bound &&
             collateral_balance < collateral_bound &&
-            dapps[dapp].collateral_amount_accumulated.add(collateral_bound) <
+            dapps[dapp].collateral_amount_accumulated.add(collateral_bound) <=
             collateral_total_limit
         ) {
             return true;
@@ -122,46 +146,18 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
 
     function _applyForGas(address dapp) internal {
-        uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         internal_sponsor.setSponsorForGas.value(gas_bound)(dapp, upper_bound);
-        address last_sponsor = internal_sponsor.getSponsorForGas(dapp);
-
-        if (
-            last_sponsor == address(this) ||
-            last_sponsor == address(0x0000000000000000000000000000000000000000)
-        ) {
-            dapps[dapp].gas_amount_accumulated = dapps[dapp]
-                .gas_amount_accumulated
-                .add(gas_bound)
-                .sub(gas_balance);
-        } else {
-            //simply ignore the refund and dapp will get less than total_limit
-            dapps[dapp].gas_amount_accumulated = dapps[dapp]
-                .gas_amount_accumulated
-                .add(gas_bound);
-        }
+        dapps[dapp].gas_amount_accumulated = dapps[dapp]
+            .gas_amount_accumulated
+            .add(gas_bound);
         emit applied(msg.sender, dapp, gas_bound);
     }
 
     function _applyForCollateral(address dapp) internal {
-        uint256 collateral_balance = internal_sponsor
-            .getSponsoredBalanceForCollateral(dapp);
         internal_sponsor.setSponsorForCollateral.value(collateral_bound)(dapp);
-        address last_sponsor = internal_sponsor.getSponsorForCollateral(dapp);
-        if (
-            last_sponsor == address(this) ||
-            last_sponsor == address(0x0000000000000000000000000000000000000000)
-        ) {
-            dapps[dapp].collateral_amount_accumulated = dapps[dapp]
-                .collateral_amount_accumulated
-                .add(collateral_bound)
-                .sub(collateral_balance);
-        } else {
-            //simply ignore the refund and dapp will get less than total_limit
-            dapps[dapp].collateral_amount_accumulated = dapps[dapp]
-                .collateral_amount_accumulated
-                .add(collateral_bound);
-        }
+        dapps[dapp].collateral_amount_accumulated = dapps[dapp]
+            .collateral_amount_accumulated
+            .add(collateral_bound);
         emit applied(msg.sender, dapp, collateral_bound);
     }
 
@@ -188,6 +184,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
         uint256 collateralBound,
         uint256 upperBound
     ) public onlyOwner {
+        //rule by internal contract
         require(upperBound.mul(1000) <= gasBound, "upperBound too high");
         gas_total_limit = gasTotalLimit;
         collateral_total_limit = collateralTotalLimit;
