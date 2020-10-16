@@ -65,11 +65,17 @@ class Faucet {
         let r; 
         try {
             r = await this._isAppliableCall(dapp);
-            return r;    
+            return {
+                flag: r,
+                message: ''
+            };    
         } catch(e) {
             let message = e.toString();
             message = message.replace(`Error: Estimation isn't accurate: transaction is reverted. Execution output Reason provided by the contract: `, "").replace(/\'/g, "");
-            return message;
+            return {
+                flag: false,
+                message: message
+            }
         }
     }
     

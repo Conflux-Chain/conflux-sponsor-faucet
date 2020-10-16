@@ -1,5 +1,4 @@
 pragma solidity 0.5.11;
-pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/lifecycle/Pausable.sol";
@@ -105,15 +104,15 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
             require(
                 gas_balance <
                     internal_sponsor.getSponsoredGasFeeUpperBound(dapp),
-                "can not replace 3rd party sponsor"
+                "ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR"
             );
         }
-        require(address(this).balance >= gas_bound, "faucet out of money");
-        require(gas_balance < gas_bound, "sponsored fund unused");
+        require(address(this).balance >= gas_bound, "ERROR_GAS_FAUCET_OUT_OF_MONEY");
+        require(gas_balance < gas_bound, "ERROR_GAS_SPONSORED_FUND_UNUSED");
         require(
             dapps[dapp].gas_amount_accumulated.add(gas_bound) <=
                 gas_total_limit,
-            "over gas total limit"
+            "ERROR_GAS_OVER_GAS_TOTAL_LIMIT"
         );
     }
 
@@ -133,15 +132,15 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     function _validateApplyForCollateral(address dapp) internal {
         require(
             address(this).balance >= collateral_bound,
-            "faucet out of money"
+            "ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY"
         );
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        require(collateral_balance < collateral_bound, "sponsored fund unused");
+        require(collateral_balance < collateral_bound, "ERROR_COLLATERAL_SPONSORED_FUND_UNUSED");
         require(
             dapps[dapp].collateral_amount_accumulated.add(collateral_bound) <
                 collateral_total_limit,
-            "over collateral total limit"
+            "ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT"
         );
     }
 

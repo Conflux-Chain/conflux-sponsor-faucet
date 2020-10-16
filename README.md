@@ -30,8 +30,10 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
     * @param dapp The address of dapp 
     */
    async isAppliable(dapp) -> 
-   bool true // success
-   string //error message
+   {	
+     	flag: bool, 
+   		message: string //error message and empty if success 
+   }
    ```
 4. withdraw from faucet
 
@@ -85,4 +87,13 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
      }
    ```
 
-    
+### ERROR CODE
+#### For Gas
+1. ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // 无法替换第三方赞助者
+2. ERROR_GAS_FAUCET_OUT_OF_MONEY // faucet 余额不足
+3. ERROR_GAS_SPONSORED_FUND_UNUSED // 已申请赞助未使用
+4. ERROR_GAS_OVER_GAS_TOTAL_LIMIT // 超过gas 赞助总额上限
+#### For storage/collateral
+1. ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY // faucet 余额不足
+2. ERROR_COLLATERAL_SPONSORED_FUND_UNUSED // 已申请赞助未使用
+3. ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT //超过collateral 赞助总额上限
