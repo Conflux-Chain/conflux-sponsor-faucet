@@ -154,6 +154,26 @@ class Faucet {
             collateral_amount_accumulated : res[1],
         }
     }
+
+    async gasCosumeForTest(privateKey, address, count, upperBound) {
+        let testUser = this.cfx.Account(privateKey);
+        let nonce = Number(await this.cfx.getNextNonce(testUser.address));
+        let tx_hash;
+        for(let i = 0; i < count; i++) {
+            try {    
+                tx_hash = await cfx.sendTransaction({
+                    from: testUser,
+                    to: address,
+                    nonce: nonce,
+                    gas: 1e7,
+                    gasPrice: upperBound * 1e11,
+                });
+                nonce++;
+            } catch (e) {
+            console.error(e);
+            }
+        }
+    }
 }
 
 module.exports = {
