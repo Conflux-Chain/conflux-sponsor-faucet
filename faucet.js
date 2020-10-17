@@ -155,6 +155,13 @@ class Faucet {
         }
     }
 
+    /**
+     * @dev send tx to cost sponsored gas fee
+     * @param privateKey begin with 'Ox'
+     * @param address test contract address
+     * @param count how many transactions, eg. 1000 
+     * @param upperBound unit CFX, eg. 0.001
+     */
     async gasCosumeForTest(privateKey, address, count, upperBound) {
         let testUser = this.cfx.Account(privateKey);
         let nonce = Number(await this.cfx.getNextNonce(testUser.address));
