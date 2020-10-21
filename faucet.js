@@ -61,7 +61,7 @@ class Faucet {
      * @dev check if a dapp can be sponsored
      * @param dapp The address of dapp 
      */
-    async isAppliable(dapp) {
+    async checkAppliable(dapp) {
         let r; 
         try {
             r = await this._isAppliableCall(dapp);
@@ -152,33 +152,6 @@ class Faucet {
         return {
             gas_amount_accumulated: res[0],
             collateral_amount_accumulated : res[1],
-        }
-    }
-
-    /**
-     * @dev send tx to cost sponsored gas fee
-     * @param privateKey begin with 'Ox'
-     * @param address test contract address
-     * @param count how many transactions, eg. 1000 
-     * @param upperBound unit CFX, eg. 0.001
-     */
-    async gasCosumeForTest(privateKey, address, count, upperBound) {
-        let testUser = this.cfx.Account(privateKey);
-        let nonce = Number(await this.cfx.getNextNonce(testUser.address));
-        let tx_hash;
-        for(let i = 0; i < count; i++) {
-            try {    
-                tx_hash = await cfx.sendTransaction({
-                    from: testUser,
-                    to: address,
-                    nonce: nonce,
-                    gas: 1e7,
-                    gasPrice: upperBound * 1e11,
-                });
-                nonce++;
-            } catch (e) {
-            console.error(e);
-            }
         }
     }
 }

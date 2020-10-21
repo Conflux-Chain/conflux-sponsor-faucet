@@ -29,7 +29,7 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    /**
     * @param dapp The address of dapp 
     */
-   async isAppliable(dapp) -> 
+   async checkAppliable(dapp) -> 
    {	
      	flag: bool,
      	message: string //error message and empty if success 
