@@ -3,61 +3,97 @@
 A faucet for sponsoring contracts running on Conflux Chain. Before your apply, make sure you understand how the [internal contracts](https://github.com/Conflux-Chain/conflux-rust/tree/master/internal_contract) works.
 
 ## Conflux SponsorFaucet SDK
-### Frontend
+The **SponsorFaucet** returns a **rawTx** with suggested gas and input data. 
 
-The **faucet-frontend** works with conflux portal.
+1. Constructor for faucet
+   ```js
+   /**
+    * @param url The conflux provider url 
+    * @param address The faucet contract address
+    */
+   constructor(url, address)
+   ```
 
-Constructor for faucet
+2. apply gas / collateral sponsorship 
 
-```js
-/**
- * @param url The conflux provider url 
- * @param address The faucet contract address
- */
-constructor(url, address)
-```
-apply to be sponsored, returns transaction with payload data 
-```js
-/**
- * @param dapp The address of dapp 
- * @param address The sender address of apply message
- */
-async apply(dapp, address) -> tx
-```
+   ```js
+   /**
+    * @param dapp The address of dapp 
+    */
+   async apply(dapp) -> rawTx
+   ```
 
-### Backend
+3. check if appliable
 
-The **faucet-backend** supports importing privatekey and apply for sponsor. 
+   ```js
+   /**
+    * @param dapp The address of dapp 
+    */
+   async checkAppliable(dapp) -> 
+   {	
+     	flag: bool,
+     	message: string //error message and empty if success 
+   }
+   ```
+4. withdraw from faucet
 
-Constructor for faucet
+   ```js
+    /**
+    * @param address address to accept fund 
+    * @param amount amount to withdraw
+    */
+   async withdraw(address, amount) -> rawTx
+   ```
+5. set bounds for sponsorship
 
-```js
-/**
- * @param url The conflux provider url
- * @param address The faucet contract address 
- * @param privatekey The privatekey begins with '0x'
- */
-constructor(url, address, privatekey)
-```
-apply to be sponsored
+   ```js
+   /**
+    * @param gasTotalLimit total sponsored gas limit
+    * @param collateralTotalLimit total sponsored collateral limit
+    * @param gasBound single sponsor gas bound
+    * @param collateralBound single sponsor collateral bound
+    * @param upperBound upperBound for single tx gas
+    */
+   async setBounds(gasTotalLimit, collateralTotalLimit, gasBound, collateralBound, upperBound) -> rawTx
+   ```
 
-```js
-/**
- * @param dapp The address of dapp 
- */
-async apply(dapp)
-```
-withdraw from faucet
+6. pause/unpause the faucet
 
-```js
-/**
- * @param address The sponsor faucet address 
- * @param amount The amout to be withdrawn
- */
-async withdraw(address, amount)
-```
-pause the faucet
+   ```js
+   async pause() -> rawTx
+   async unpause() -> rawTx
+   ```
 
-```js
-async pause()
-```
+7. get bounds and limits of faucet
+
+   ```js
+   async getFaucetParams() -> 
+   {
+     	gas_total_limit: JSBI,
+     	collateral_total_limit: JSBI,
+     	gas_bound: JSBI,
+     	collateral_bound: JSBI,
+     	upper_bound: JSBI
+   }
+   ```
+
+8. get accumulated sponsored amouts of a contract/dapp
+
+   ```js
+   async getAmountAccumulated(dapp) -> 
+   {
+    	gas_amount_accumulated: JSBI,
+    	collateral_amount_accumulated: JSBI
+   }
+   ```
+
+### ERROR CODE
+#### For Gas
+1. ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // 无法替换第三方赞助者
+2. ERROR_GAS_FAUCET_OUT_OF_MONEY // faucet 余额不足
+3. ERROR_GAS_SPONSORED_FUND_UNUSED // 已申请赞助未使用
+4. ERROR_GAS_OVER_GAS_TOTAL_LIMIT // 超过gas 赞助总额上限
+#### For storage/collateral
+1. ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY // faucet 余额不足
+2. ERROR_COLLATERAL_SPONSORED_FUND_UNUSED // 已申请赞助未使用
+3. ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT //超过collateral 赞助总额上限

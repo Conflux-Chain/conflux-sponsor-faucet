@@ -2,12 +2,13 @@
   "name": "sponsorfaucet",
   "version": "1.0.0",
   "description": "",
-  "main": "truffle-config.js",
+  "main": "faucet.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "contract_prettier": "prettier --write contracts/*.sol"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,10 @@
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
     "commander": "^6.0.0",
+    "ethers": "^5.0.8",
     "js-conflux-sdk": "^0.13.4",
-    "web3": "^1.2.11"
+    "web3": "^1.2.11",
+    "prettier": "^2.0.5",
+    "prettier-plugin-solidity": "^1.0.0-alpha.54"
   }
 }
