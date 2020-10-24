@@ -3,11 +3,14 @@ pragma solidity 0.5.11;
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/lifecycle/Pausable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 import "./Lib/ReentrancyGuard.sol";
 import "./InternalContract.sol";
 
 contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
+    using Address for address;
+
     struct detail {
         uint256 gas_amount_accumulated; //current accumulated sponsored amout for gas
         uint256 collateral_amount_accumulated; //current total sponsored amount for collateral
@@ -64,11 +67,13 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     function isAppliable(address dapp) public returns (bool) {
         if (_isAppliableForGas(dapp) || _isAppliableForCollateral(dapp))
             return true;
+        require(dapp.isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
         _validateApplyForGas(dapp);
         _validateApplyForCollateral(dapp);
     }
 
     function _isAppliableForGas(address dapp) internal returns (bool) {
+        if(!dapp.isContract()) return false;
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         if (
@@ -117,6 +122,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard {
     }
 
     function _isAppliableForCollateral(address dapp) internal returns (bool) {
+        if(!dapp.isContract()) return false;
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
         if (
