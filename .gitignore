@@ -1,6 +1,7 @@
 example.js
 .DS_Store
 .solhint.json
+truffle-config.js
 
 /contracts/*
 /build/contracts/*
