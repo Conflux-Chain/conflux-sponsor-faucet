@@ -88,6 +88,8 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    ```
 
 ### ERROR CODE
+#### Address Check
+1. ERROR_ADDRESS_IS_NOT_CONTRACT // 申请地址不是合约
 #### For Gas
 1. ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // 无法替换第三方赞助者
 2. ERROR_GAS_FAUCET_OUT_OF_MONEY // faucet 余额不足
