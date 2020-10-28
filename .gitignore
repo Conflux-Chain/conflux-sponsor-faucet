@@ -1,5 +1,9 @@
 example.js
 !/build/contracts/SponsorFaucet.json
+!/contracts/SponsorFaucet.sol
+/contracts
 /build
 /test
 /node_modules
+.solhint.json
+/.vscode
