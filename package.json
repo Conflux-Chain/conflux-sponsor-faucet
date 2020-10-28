@@ -1,6 +1,6 @@
 {
-  "name": "conflux-sponsor-faucet",
-  "version": "1.0.0",
+  "name": "conflux-sponsorfaucet",
+  "version": "1.0.1",
   "description": "",
   "main": "faucet.js",
   "directories": {
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/oo7ww/SponsorFaucet.git"
+    "url": "git+https://github.com/Conflux-Chain/conflux-sponsor-faucet.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/oo7ww/SponsorFaucet/issues"
+    "url": "https://github.com/Conflux-Chain/conflux-sponsor-faucet/issues"
   },
-  "homepage": "https://github.com/oo7ww/SponsorFaucet#readme",
+  "homepage": "https://github.com/Conflux-Chain/conflux-sponsor-faucet#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
     "commander": "^6.0.0",
