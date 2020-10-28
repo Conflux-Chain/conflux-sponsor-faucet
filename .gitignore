@@ -11,3 +11,5 @@ truffle-config.js
 
 !/build/contracts/SponsorFaucet.json
 !/contracts/SponsorFaucet.sol
+!/contracts/InternalContract.sol
+!/contracts/Lib
