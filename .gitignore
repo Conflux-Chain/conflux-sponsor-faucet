@@ -1,9 +1,12 @@
 example.js
-!/build/contracts/SponsorFaucet.json
-!/contracts/SponsorFaucet.sol
-/contracts
-/build
+.DS_Store
+.solhint.json
+
+/contracts/*
+/build/contracts/*
 /test
 /node_modules
-.solhint.json
 /.vscode
+
+!/build/contracts/SponsorFaucet.json
+!/contracts/SponsorFaucet.sol
