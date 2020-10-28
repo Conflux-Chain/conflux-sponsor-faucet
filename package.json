@@ -1,5 +1,5 @@
 {
-  "name": "sponsorfaucet",
+  "name": "conflux-sponsor-faucet",
   "version": "1.0.0",
   "description": "",
   "main": "faucet.js",
