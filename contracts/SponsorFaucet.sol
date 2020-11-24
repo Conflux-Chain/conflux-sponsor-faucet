@@ -1,4 +1,5 @@
 pragma solidity 0.5.11;
+pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/lifecycle/Pausable.sol";
@@ -16,8 +17,7 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
         uint256 gas_amount_accumulated; //current accumulated sponsored amout for gas
         uint256 collateral_amount_accumulated; //current total sponsored amount for collateral
     }
-
-    // special quota 
+ 
     struct bounds {
         //total sponsored limit
         uint256 gas_total_limit;
@@ -29,35 +29,18 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
         uint256 upper_bound;
     }
 
-    /*** bounds set by foundation ***/
-    //small quota
-    //total sponsored limit
-    uint256 public gas_total_limit;
-    uint256 public collateral_total_limit;
-    //single sponsor bound
-    uint256 public gas_bound;
-    uint256 public collateral_bound;
-    //upper bound for single tx
-    uint256 public upper_bound;
-
-    // general quota
-    //total sponsored limit
-    uint256 public general_gas_total_limit;
-    uint256 public general_collateral_total_limit;
-    //single sponsor bound
-    uint256 public general_gas_bound;
-    uint256 public general_collateral_bound;
-    //upper bound for single tx
-    uint256 public general_upper_bound;
+    //constant address used as key for small and large
+    address constant small = 0x0000000000000000000000000000000000000000;
+    address constant large = 0x0000000000000000000000000000000000000001;
 
     // for all contracts
     mapping(address => detail) public dapps;
     
-    // bounds for special contracts
-    mapping(address => bounds) public special_dapps;
+    // bounds for contracts
+    mapping(address => bounds) public dapp_bounds;
 
-    address[] public general_contracts;
-    address[] public special_contracts;
+    mapping(address => bool) public large_contracts;
+    mapping(address => bool) public custom_contracts;
 
     event applied(
         address indexed applicant,
@@ -70,30 +53,14 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
     );
 
     constructor(
-        uint256 gasTotalLimit,
-        uint256 collateralTotalLimit,
-        uint256 gasBound,
-        uint256 collateralBound,
-        uint256 upperBound,
-        uint256 generalGasTotalLimit,
-        uint256 generalCollateralTotalLimit,
-        uint256 generalGasBound,
-        uint256 generalCollateralBound,
-        uint256 generalUpperBound
+        bounds memory smallBounds,
+        bounds memory largeBounds
     ) public {
         //rule by internal contract
-        require(upperBound.mul(1000) <= gasBound, "upperBound too high");
-        gas_total_limit = gasTotalLimit;
-        collateral_total_limit = collateralTotalLimit;
-        gas_bound = gasBound;
-        collateral_bound = collateralBound;
-        upper_bound = upperBound;
-        require(generalUpperBound.mul(1000) <= generalGasBound, "upperBound too high");
-        general_gas_total_limit = generalGasTotalLimit;
-        general_collateral_total_limit = generalCollateralTotalLimit;
-        general_gas_bound = generalGasBound;
-        general_collateral_bound = generalCollateralBound;
-        general_upper_bound = generalUpperBound;
+        require(smallBounds.upper_bound.mul(1000) <= smallBounds.gas_bound, "upperBound too high");
+        require(largeBounds.upper_bound.mul(1000) <= largeBounds.gas_bound, "upperBound too high");
+        dapp_bounds[small] = smallBounds;
+        dapp_bounds[large] = largeBounds;
     }
 
     /*** Dapp dev calls ***/
@@ -122,7 +89,6 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
         public
         onlyOwner
         nonReentrant
-        whenPaused
     {
         require(address(this).balance >= amount, "amount too high");
         (bool success, ) = sponsor.call.value(amount)("");
@@ -131,95 +97,80 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
 
     //set bounds for sponsorship
     function setBounds(
-        uint256 gasTotalLimit,
-        uint256 collateralTotalLimit,
-        uint256 gasBound,
-        uint256 collateralBound,
-        uint256 upperBound
+        bounds memory smallBounds
     ) public {
         _onlyWhitelistAdmin();
         //rule by internal contract
-        require(upperBound.mul(1000) <= gasBound, "upperBound too high");
-        gas_total_limit = gasTotalLimit;
-        collateral_total_limit = collateralTotalLimit;
-        gas_bound = gasBound;
-        collateral_bound = collateralBound;
-        upper_bound = upperBound;
+        require(smallBounds.upper_bound.mul(1000) <= smallBounds.gas_bound, "upperBound too high");
+        dapp_bounds[small] = smallBounds;
     }
 
     //set bounds for general contracts
     function setGeneralBounds(
-        uint256 gasTotalLimit,
-        uint256 collateralTotalLimit,
-        uint256 gasBound,
-        uint256 collateralBound,
-        uint256 upperBound
+        bounds memory largeBounds
     ) public {
         _onlyWhitelistAdmin();
         //rule by internal contract
-        require(upperBound.mul(1000) <= gasBound, "upperBound too high");
-        general_gas_total_limit = gasTotalLimit;
-        general_collateral_total_limit = collateralTotalLimit;
-        general_gas_bound = gasBound;
-        general_collateral_bound = collateralBound;
-        general_upper_bound = upperBound;
+        require(largeBounds.upper_bound.mul(1000) <= largeBounds.gas_bound, "upperBound too high");
+        dapp_bounds[large] = largeBounds;
     }
 
-    //set bounds for special contracts
-    function setSpecialBounds(
+    //set bounds for custom contracts
+    function setCustomBounds(
         address addr,
-        uint256 gasTotalLimit,
-        uint256 collateralTotalLimit,
-        uint256 gasBound,
-        uint256 collateralBound,
-        uint256 upperBound
+        bounds memory customBounds
     ) public {
         _onlyWhitelistAdmin();
         //rule by internal contract
-        require(upperBound.mul(1000) <= gasBound, "upperBound too high");
-        special_dapps[addr].gas_total_limit = gasTotalLimit;
-        special_dapps[addr].collateral_total_limit = collateralTotalLimit;
-        special_dapps[addr].gas_bound = gasBound;
-        special_dapps[addr].collateral_bound = collateralBound;
-        special_dapps[addr].upper_bound = upperBound;
+        require(customBounds.upper_bound.mul(1000) <= customBounds.gas_bound, "upperBound too high");
+        dapp_bounds[addr] = customBounds;
     }
 
 
     /* ===== Public utility functions ===== */
-    function addGeneralContracts(address[] memory addAddr) public {
+    function addLargeContracts(address[] memory addAddr) public {
         _onlyWhitelistAdmin();
         for(uint256 i = 0; i < addAddr.length; i++) {
-            general_contracts.push(addAddr[i]);
+            large_contracts[addAddr[i]] = true;
+            if(custom_contracts[addAddr[i]]) {
+                delete dapp_bounds[addAddr[i]];
+            }
+            custom_contracts[addAddr[i]] = false;
         }
     }
 
-    function addSpecialContracts(address[] memory addAddr) public {
+    function addCustomContracts(address[] memory addAddr, bounds[] memory addrBounds) public {
         _onlyWhitelistAdmin();
+        require(addAddr.length == addrBounds.length, "length not match");
         for(uint256 i = 0; i < addAddr.length; i++) {
-            special_contracts.push(addAddr[i]);
+            custom_contracts[addAddr[i]] = true;
+            large_contracts[addAddr[i]] = false;
+            dapp_bounds[addAddr[i]] = addrBounds[i];
         }
     }
 
-    function specialContractsCount() public view returns (uint256) {
-        return special_contracts.length;
-    }
-
-    function generalContractsCount() public view returns (uint256) {
-        return general_contracts.length;
-    }
-
-    function isGeneralContract(address dapp) public view returns (bool) {
-        for(uint256 i = 0; i < general_contracts.length; i++) {
-            if(general_contracts[i] == dapp) return true;
+    function removeLargeContract(address[] memory removeAddr) public {
+        _onlyWhitelistAdmin();
+        for(uint256 i = 0; i < removeAddr.length; i++) {
+            delete large_contracts[removeAddr[i]];
+            delete dapp_bounds[removeAddr[i]];
         }
-        return false;
     }
 
-    function isSpecialContract(address dapp) public view returns (bool) {
-        for(uint256 i = 0; i < special_contracts.length; i++) {
-            if(special_contracts[i] == dapp) return true;
+    function removeCustomContract(address[] memory removeAddr) public {
+        _onlyWhitelistAdmin();
+        for(uint256 i = 0; i < removeAddr.length; i++) {
+            delete custom_contracts[removeAddr[i]];
+            delete dapp_bounds[removeAddr[i]];
         }
-        return false;
+    }
+
+    function isLargeContract(address dapp) public view returns (bool) {
+        return large_contracts[dapp];
+    }
+
+    function isCustomContract(address dapp) public view returns (bool) {
+        return custom_contracts[dapp];
     }
 
     function _onlyWhitelistAdmin() internal view {
@@ -233,19 +184,17 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
         if(!dapp.isContract()) return false;
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
-        uint256 contract_gas_bound;
-        uint256 contract_gas_total_limit;
-        if (isGeneralContract(dapp)) {
-            contract_gas_bound = general_gas_bound;
-            contract_gas_total_limit = general_gas_total_limit;
-        } else if (isSpecialContract(dapp)) {
-            contract_gas_bound = special_dapps[dapp].gas_bound;
-            contract_gas_total_limit = special_dapps[dapp].gas_total_limit;
-        } else {
-            contract_gas_bound = gas_bound;
-            contract_gas_total_limit = gas_total_limit;
+        uint256 contract_gas_bound = dapp_bounds[small].gas_bound;
+        uint256 contract_gas_total_limit = dapp_bounds[small].gas_total_limit;
+        if (isCustomContract(dapp)) {
+            contract_gas_bound = dapp_bounds[dapp].gas_bound;
+            contract_gas_total_limit = dapp_bounds[dapp].gas_total_limit;
         }
-
+        if (isLargeContract(dapp)) {
+            contract_gas_bound = dapp_bounds[large].gas_bound;
+            contract_gas_total_limit = dapp_bounds[large].gas_total_limit;
+        }
+        
         if (
             current_sponsor == address(this) ||
             current_sponsor ==
@@ -271,18 +220,17 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
     function _validateApplyForGas(address dapp) internal {
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
-        uint256 contract_gas_bound;
-        uint256 contract_gas_total_limit;
-        if (isGeneralContract(dapp)) {
-            contract_gas_bound = general_gas_bound;
-            contract_gas_total_limit = general_gas_total_limit;
-        } else if (isSpecialContract(dapp)) {
-            contract_gas_bound = special_dapps[dapp].gas_bound;
-            contract_gas_total_limit = special_dapps[dapp].gas_total_limit;
-        } else {
-            contract_gas_bound = gas_bound;
-            contract_gas_total_limit = gas_total_limit;
+        uint256 contract_gas_bound = dapp_bounds[small].gas_bound;
+        uint256 contract_gas_total_limit = dapp_bounds[small].gas_total_limit;
+        if (isCustomContract(dapp)) {
+            contract_gas_bound = dapp_bounds[dapp].gas_bound;
+            contract_gas_total_limit = dapp_bounds[dapp].gas_total_limit;
         }
+        if (isLargeContract(dapp)) {
+            contract_gas_bound = dapp_bounds[large].gas_bound;
+            contract_gas_total_limit = dapp_bounds[large].gas_total_limit;
+        }
+
         if (
             current_sponsor != address(this) &&
             current_sponsor !=
@@ -307,19 +255,16 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
         if(!dapp.isContract()) return false;
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        uint256 contract_collateral_bound;
-        uint256 contract_collateral_total_limit;
-        if (isGeneralContract(dapp)) {
-            contract_collateral_bound = general_collateral_bound;
-            contract_collateral_total_limit = general_collateral_total_limit;
-        } else if (isSpecialContract(dapp)) {
-            contract_collateral_bound = special_dapps[dapp].collateral_bound;
-            contract_collateral_total_limit = special_dapps[dapp].collateral_total_limit;
-        } else {
-            contract_collateral_bound = collateral_bound;
-            contract_collateral_total_limit = collateral_total_limit;
+        uint256 contract_collateral_bound = dapp_bounds[small].collateral_bound;
+        uint256 contract_collateral_total_limit = dapp_bounds[small].collateral_total_limit;       
+        if (isCustomContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[dapp].collateral_bound;
+            contract_collateral_total_limit = dapp_bounds[dapp].collateral_total_limit;
         }
-        
+        if (isLargeContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[large].collateral_bound;
+            contract_collateral_total_limit = dapp_bounds[large].collateral_total_limit;
+        }       
         if (
             address(this).balance >= contract_collateral_bound &&
             collateral_balance < contract_collateral_bound &&
@@ -331,26 +276,22 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
     }
 
     function _validateApplyForCollateral(address dapp) internal {
-        require(
-            address(this).balance >= collateral_bound,
-            "ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY"
-        );
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        uint256 contract_collateral_bound;
-        uint256 contract_collateral_total_limit;
-        
-        if (isGeneralContract(dapp)) {
-            contract_collateral_bound = general_collateral_bound;
-            contract_collateral_total_limit = general_collateral_total_limit;
-        } else if (isSpecialContract(dapp)) {
-            contract_collateral_bound = special_dapps[dapp].collateral_bound;
-            contract_collateral_total_limit = special_dapps[dapp].collateral_total_limit;
-        } else {
-            contract_collateral_bound = collateral_bound;
-            contract_collateral_total_limit = collateral_total_limit;
+        uint256 contract_collateral_bound = dapp_bounds[small].collateral_bound;
+        uint256 contract_collateral_total_limit = dapp_bounds[small].collateral_total_limit;
+        if (isCustomContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[dapp].collateral_bound;
+            contract_collateral_total_limit = dapp_bounds[dapp].collateral_total_limit;
         }
-        
+        if (isLargeContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[large].collateral_bound;
+            contract_collateral_total_limit = dapp_bounds[large].collateral_total_limit;
+        }    
+        require(
+            address(this).balance >= contract_collateral_bound,
+            "ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY"
+        );
         require(collateral_balance < contract_collateral_bound, "ERROR_COLLATERAL_SPONSORED_FUND_UNUSED");
         require(
             dapps[dapp].collateral_amount_accumulated.add(contract_collateral_bound) <
@@ -360,18 +301,18 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
     }
 
     function _applyForGas(address dapp) internal {
-        uint256 contract_gas_bound;
-        uint256 contract_upper_bound;
-        if (isGeneralContract(dapp)) {
-            contract_gas_bound = general_gas_bound;
-            contract_upper_bound = general_upper_bound;
-        } else if (isSpecialContract(dapp)) {
-            contract_gas_bound = special_dapps[dapp].gas_bound;
-            contract_upper_bound = special_dapps[dapp].upper_bound;
-        } else {
-            contract_gas_bound = gas_bound;
-            contract_upper_bound = upper_bound;
+        uint256 contract_gas_bound = dapp_bounds[small].gas_bound;
+        uint256 contract_upper_bound = dapp_bounds[small].upper_bound;
+        
+        if (isLargeContract(dapp)) {
+            contract_gas_bound = dapp_bounds[large].gas_bound;
+            contract_upper_bound = dapp_bounds[large].upper_bound;
+        } 
+        if (isCustomContract(dapp)) {
+            contract_gas_bound = dapp_bounds[dapp].gas_bound;
+            contract_upper_bound = dapp_bounds[dapp].upper_bound;
         }
+
         internal_sponsor.setSponsorForGas.value(contract_gas_bound)(dapp, contract_upper_bound);
         dapps[dapp].gas_amount_accumulated = dapps[dapp]
             .gas_amount_accumulated
@@ -380,14 +321,14 @@ contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
     }
 
     function _applyForCollateral(address dapp) internal {
-        uint256 contract_collateral_bound;
-        if (isGeneralContract(dapp)) {
-            contract_collateral_bound = general_collateral_bound;
-        } else if (isSpecialContract(dapp)) {
-            contract_collateral_bound = special_dapps[dapp].collateral_bound;
-        } else {
-            contract_collateral_bound = collateral_bound;
+        uint256 contract_collateral_bound = dapp_bounds[small].collateral_bound;
+        if (isLargeContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[large].collateral_bound;
+        } 
+        if (isCustomContract(dapp)) {
+            contract_collateral_bound = dapp_bounds[dapp].collateral_bound;
         }
+
         internal_sponsor.setSponsorForCollateral.value(contract_collateral_bound)(dapp);
         dapps[dapp].collateral_amount_accumulated = dapps[dapp]
             .collateral_amount_accumulated
