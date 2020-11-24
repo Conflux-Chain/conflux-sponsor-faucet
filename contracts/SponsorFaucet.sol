@@ -3,13 +3,13 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/lifecycle/Pausable.sol";
-import "@openzeppelin/contracts/access/roles/WhitelistedRole.sol";
+import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "./Lib/ReentrancyGuard.sol";
 import "./InternalContract.sol";
 
-contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistedRole {
+contract SponsorFaucet is Ownable, Pausable, ReentrancyGuard, WhitelistAdminRole {
     using SafeMath for uint256;
     using Address for address;
 
