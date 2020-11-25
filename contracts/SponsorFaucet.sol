@@ -19,8 +19,10 @@ contract SponsorFaucet is
     using Address for address;
 
     struct detail {
-        uint256 gas_amount_accumulated; //current accumulated sponsored amout for gas
-        uint256 collateral_amount_accumulated; //current total sponsored amount for collateral
+        //current accumulated sponsored amout for gas
+        uint256 gas_amount_accumulated;
+        //current total sponsored amount for collateral
+        uint256 collateral_amount_accumulated;
     }
 
     struct bounds {
@@ -140,7 +142,7 @@ contract SponsorFaucet is
     function addLargeContracts(address[] memory addrList) public {
         _onlyWhitelistAdmin();
         for (uint256 i = 0; i < addrList.length; i++) {
-            large_contracts[addrList[i]] = true;
+            if(!large_contracts[addrList[i]]) large_contracts[addrList[i]] = true;
             if (custom_contracts[addrList[i]]) {
                 delete dapp_bounds[addrList[i]];
                 custom_contracts[addrList[i]] = false;
@@ -160,7 +162,7 @@ contract SponsorFaucet is
         _onlyWhitelistAdmin();
         require(addrList.length == boundsList.length, "length not match");
         for (uint256 i = 0; i < addrList.length; i++) {
-            custom_contracts[addrList[i]] = true;
+            if(!custom_contracts[addrList[i]]) custom_contracts[addrList[i]] = true;
             large_contracts[addrList[i]] = false;
             setBounds(addrList[i], boundsList[i]);
         }
