@@ -9,7 +9,7 @@ truffle-config.js
 /node_modules
 /.vscode
 
-/build/contracts/SponsorFaucet.json
+!/build/contracts/SponsorFaucet.json
 !/contracts/SponsorFaucet.sol
 !/contracts/InternalContract.sol
 !/contracts/Lib
