@@ -70,7 +70,7 @@ class Faucet {
         try {
             faucetParams = await this.getFaucetParams();
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
-            if(sponsorInfo.sponsorForCollateral !== this.address && sponsorInfo.sponsorBalanceForCollateral > faucetParams.collateralBound) {        
+            if(sponsorInfo.sponsorForCollateral !== this.address && sponsorInfo.sponsorBalanceForCollateral > faucetParams.collateral_bound) {        
                 return {
                     flag: false,
                     message: 'ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR'
