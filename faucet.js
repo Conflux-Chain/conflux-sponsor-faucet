@@ -8,6 +8,9 @@ const faucetContract = require('./build/contracts/SponsorFaucet.json');
 const gas_estimation_ratio_withdraw = 1.8;
 const gas_estimation_ratio_default = 1.3;
 
+//address key for bounds
+const small = '0x0000000000000000000000000000000000000000';
+
 class Faucet {
     /**
      * @dev constructor for faucet
@@ -16,6 +19,7 @@ class Faucet {
      */
     constructor(url, address) {
         this.cfx = new Conflux({url: url});
+        this.address = address;
         this.faucet = this.cfx.Contract({
             abi: faucetContract.abi,
             address: address,
@@ -62,7 +66,23 @@ class Faucet {
      * @param dapp The address of dapp 
      */
     async checkAppliable(dapp) {
-        let r; 
+        let r, sponsorInfo, faucetParams;
+        try {
+            faucetParams = await this.getFaucetParams();
+            sponsorInfo = await this.cfx.getSponsorInfo(dapp);
+            if(sponsorInfo.sponsorForCollateral !== this.address && sponsorInfo.sponsorBalanceForCollateral > faucetParams.collateralBound) {        
+                return {
+                    flag: false,
+                    message: 'ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR'
+                }
+            }
+        } catch (e) {
+            return {
+                flag: false,
+                message: 'RPC ERROR' + e.toString()
+            }
+        } 
+
         try {
             r = await this._isAppliableCall(dapp);
             return {
@@ -78,7 +98,7 @@ class Faucet {
             }
         }
     }
-    
+
     async _isAppliableCall(dapp) {
         let rawTx = await this.estimateForContract(this.faucet.isAppliable, [dapp]);
         let tx = {
@@ -134,12 +154,18 @@ class Faucet {
      * @dev get bounds and limit params of faucet
      */
     async getFaucetParams() {
-        return {
-            gas_total_limit: await this.faucet.gas_total_limit().call(),
-            collateral_total_limit: await this.faucet.collateral_total_limit().call(),
-            gas_bound: await this.faucet.gas_bound().call(),
-            collateral_bound: await this.faucet.collateral_bound().call(),
-            upper_bound: await this.faucet.upper_bound().call()
+        let res;
+        try {
+            res = await this.faucet.dapp_bounds(small).call();
+            return {
+                gas_total_limit: res[0],
+                collateral_total_limit: res[1],
+                gas_bound: res[2],
+                collateral_bound: res[3],
+                upper_bound: res[4] 
+            }
+        } catch(e) {
+            return e;
         }
     }
 

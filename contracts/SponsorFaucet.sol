@@ -18,14 +18,14 @@ contract SponsorFaucet is
     using SafeMath for uint256;
     using Address for address;
 
-    struct detail {
+    struct Detail {
         //current accumulated sponsored amout for gas
         uint256 gas_amount_accumulated;
         //current total sponsored amount for collateral
         uint256 collateral_amount_accumulated;
     }
 
-    struct bounds {
+    struct Bounds {
         //total sponsored limit
         uint256 gas_total_limit;
         uint256 collateral_total_limit;
@@ -41,10 +41,10 @@ contract SponsorFaucet is
     address constant large = 0x0000000000000000000000000000000000000001;
 
     // for all contracts
-    mapping(address => detail) public dapps;
+    mapping(address => Detail) public dapps;
 
     // bounds for contracts
-    mapping(address => bounds) public dapp_bounds;
+    mapping(address => Bounds) public dapp_bounds;
 
     mapping(address => bool) private large_contracts;
     mapping(address => bool) private custom_contracts;
@@ -59,7 +59,7 @@ contract SponsorFaucet is
         0x0888000000000000000000000000000000000001
     );
 
-    constructor(bounds memory smallBounds, bounds memory largeBounds) public {
+    constructor(Bounds memory smallBounds, Bounds memory largeBounds) public {
         //rule by internal contract
         require(
             smallBounds.upper_bound.mul(1000) <= smallBounds.gas_bound,
@@ -122,16 +122,15 @@ contract SponsorFaucet is
     /**
      * @dev set bounds for sponsorship
      * @param addr contract address to be sponsored, small => 0x0...0, large => 0x0...1, custom => contract address
-     * @param Bounds structed bounds for contract
+     * @param bounds structed bounds for contract
      */
-    function setBounds(address addr, bounds memory Bounds) public {
-        _onlyWhitelistAdmin();
+    function setBounds(address addr, Bounds memory bounds) public onlyWhitelistAdmin {
         //rule by internal contract
         require(
-            Bounds.upper_bound.mul(1000) <= Bounds.gas_bound,
+            bounds.upper_bound.mul(1000) <= bounds.gas_bound,
             "upperBound too high"
         );
-        dapp_bounds[addr] = Bounds;
+        dapp_bounds[addr] = bounds;
     }
 
     /* ===== Public utility functions ===== */
@@ -139,9 +138,9 @@ contract SponsorFaucet is
      * @dev add contract addresses to large_contracts list
      * @param addrList contract address list
      */
-    function addLargeContracts(address[] memory addrList) public {
-        _onlyWhitelistAdmin();
+    function addLargeContracts(address[] memory addrList) public onlyWhitelistAdmin {
         for (uint256 i = 0; i < addrList.length; i++) {
+            require(addrList[i] != small && addrList[i] != large, "reserved address can't be added");
             if(!large_contracts[addrList[i]]) large_contracts[addrList[i]] = true;
             if (custom_contracts[addrList[i]]) {
                 delete dapp_bounds[addrList[i]];
@@ -157,11 +156,11 @@ contract SponsorFaucet is
      */
     function addCustomContracts(
         address[] memory addrList,
-        bounds[] memory boundsList
-    ) public {
-        _onlyWhitelistAdmin();
+        Bounds[] memory boundsList
+    ) public onlyWhitelistAdmin {
         require(addrList.length == boundsList.length, "length not match");
         for (uint256 i = 0; i < addrList.length; i++) {
+            require(addrList[i] != small && addrList[i] != large, "reserved address can't be added");
             if(!custom_contracts[addrList[i]]) custom_contracts[addrList[i]] = true;
             large_contracts[addrList[i]] = false;
             setBounds(addrList[i], boundsList[i]);
@@ -172,8 +171,7 @@ contract SponsorFaucet is
      * @dev remove contract from large_contracts list
      * @param addrList contract address list
      */
-    function removeLargeContract(address[] memory addrList) public {
-        _onlyWhitelistAdmin();
+    function removeLargeContract(address[] memory addrList) public onlyWhitelistAdmin { 
         for (uint256 i = 0; i < addrList.length; i++) {
             delete large_contracts[addrList[i]];
         }
@@ -183,8 +181,7 @@ contract SponsorFaucet is
      * @dev remove contract from custom_contracts list
      * @param addrList contract address list
      */
-    function removeCustomContract(address[] memory addrList) public {
-        _onlyWhitelistAdmin();
+    function removeCustomContract(address[] memory addrList) public onlyWhitelistAdmin {
         for (uint256 i = 0; i < addrList.length; i++) {
             delete custom_contracts[addrList[i]];
             delete dapp_bounds[addrList[i]];
@@ -207,36 +204,15 @@ contract SponsorFaucet is
         return custom_contracts[dapp];
     }
 
-    function _onlyWhitelistAdmin() internal view {
-        require(
-            isWhitelistAdmin(msg.sender),
-            "caller does not have the WhitelistAdmin role"
-        );
-    }
-
     /*** internal helper functions ***/
 
     function _isAppliableForGas(address dapp) internal returns (bool) {
         if (!dapp.isContract()) return false;
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
-        uint256 contract_gas_bound;
-        uint256 contract_gas_total_limit;
-        (contract_gas_bound, contract_gas_total_limit) = _getGasBoundAndLimit(
-            small
-        );
-
-        if (isCustomContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_gas_total_limit
-            ) = _getGasBoundAndLimit(dapp);
-        } else if (isLargeContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_gas_total_limit
-            ) = _getGasBoundAndLimit(large);
-        }
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_gas_bound = current_bounds.gas_bound;
+        uint256 contract_gas_total_limit = current_bounds.gas_total_limit; 
 
         if (
             current_sponsor == address(this) ||
@@ -263,23 +239,9 @@ contract SponsorFaucet is
     function _validateApplyForGas(address dapp) internal {
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
-        uint256 contract_gas_bound;
-        uint256 contract_gas_total_limit;
-        (contract_gas_bound, contract_gas_total_limit) = _getGasBoundAndLimit(
-            small
-        );
-
-        if (isCustomContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_gas_total_limit
-            ) = _getGasBoundAndLimit(dapp);
-        } else if (isLargeContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_gas_total_limit
-            ) = _getGasBoundAndLimit(large);
-        }
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_gas_bound = current_bounds.gas_bound;
+        uint256 contract_gas_total_limit = current_bounds.gas_total_limit;
 
         if (
             current_sponsor != address(this) &&
@@ -311,25 +273,10 @@ contract SponsorFaucet is
         if (!dapp.isContract()) return false;
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        uint256 contract_collateral_bound;
-        uint256 contract_collateral_total_limit;
-        (
-            contract_collateral_bound,
-            contract_collateral_total_limit
-        ) = _getCollateralBoundAndLimit(small);
-
-        if (isCustomContract(dapp)) {
-            (
-                contract_collateral_bound,
-                contract_collateral_total_limit
-            ) = _getCollateralBoundAndLimit(dapp);
-        } else if (isLargeContract(dapp)) {
-            (
-                contract_collateral_bound,
-                contract_collateral_total_limit
-            ) = _getCollateralBoundAndLimit(large);
-        }
-
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_collateral_bound = current_bounds.collateral_bound;
+        uint256 contract_collateral_total_limit = current_bounds.collateral_total_limit;
+        
         if (
             address(this).balance >= contract_collateral_bound &&
             collateral_balance < contract_collateral_bound &&
@@ -345,25 +292,10 @@ contract SponsorFaucet is
     function _validateApplyForCollateral(address dapp) internal {
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        uint256 contract_collateral_bound;
-        uint256 contract_collateral_total_limit;
-        (
-            contract_collateral_bound,
-            contract_collateral_total_limit
-        ) = _getCollateralBoundAndLimit(small);
-
-        if (isCustomContract(dapp)) {
-            (
-                contract_collateral_bound,
-                contract_collateral_total_limit
-            ) = _getCollateralBoundAndLimit(dapp);
-        } else if (isLargeContract(dapp)) {
-            (
-                contract_collateral_bound,
-                contract_collateral_total_limit
-            ) = _getCollateralBoundAndLimit(large);
-        }
-
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_collateral_bound = current_bounds.collateral_bound;
+        uint256 contract_collateral_total_limit = current_bounds.collateral_total_limit;
+        
         require(
             address(this).balance >= contract_collateral_bound,
             "ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY"
@@ -381,24 +313,10 @@ contract SponsorFaucet is
     }
 
     function _applyForGas(address dapp) internal {
-        uint256 contract_gas_bound;
-        uint256 contract_upper_bound;
-        (contract_gas_bound, contract_upper_bound) = _getGasBoundAndUpperBound(
-            small
-        );
-
-        if (isCustomContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_upper_bound
-            ) = _getGasBoundAndUpperBound(dapp);
-        } else if (isLargeContract(dapp)) {
-            (
-                contract_gas_bound,
-                contract_upper_bound
-            ) = _getGasBoundAndUpperBound(large);
-        }
-
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_gas_bound = current_bounds.gas_bound;
+        uint256 contract_upper_bound = current_bounds.upper_bound; 
+        
         internal_sponsor.setSponsorForGas.value(contract_gas_bound)(
             dapp,
             contract_upper_bound
@@ -410,14 +328,9 @@ contract SponsorFaucet is
     }
 
     function _applyForCollateral(address dapp) internal {
-        uint256 contract_collateral_bound = _getCollateralBound(small);
-
-        if (isCustomContract(dapp)) {
-            contract_collateral_bound = _getCollateralBound(dapp);
-        } else if (isLargeContract(dapp)) {
-            contract_collateral_bound = _getCollateralBound(large);
-        }
-
+        Bounds memory current_bounds = _getBounds(dapp);
+        uint256 contract_collateral_bound = current_bounds.collateral_bound;
+        
         internal_sponsor.setSponsorForCollateral.value(
             contract_collateral_bound
         )(dapp);
@@ -427,34 +340,9 @@ contract SponsorFaucet is
         emit applied(msg.sender, dapp, contract_collateral_bound);
     }
 
-    function _getGasBoundAndUpperBound(address dapp)
-        internal
-        view
-        returns (uint256, uint256)
-    {
-        return (dapp_bounds[dapp].gas_bound, dapp_bounds[dapp].upper_bound);
-    }
-
-    function _getGasBoundAndLimit(address dapp)
-        internal
-        view
-        returns (uint256, uint256)
-    {
-        return (dapp_bounds[dapp].gas_bound, dapp_bounds[dapp].gas_total_limit);
-    }
-
-    function _getCollateralBoundAndLimit(address dapp)
-        internal
-        view
-        returns (uint256, uint256)
-    {
-        return (
-            dapp_bounds[dapp].collateral_bound,
-            dapp_bounds[dapp].collateral_total_limit
-        );
-    }
-
-    function _getCollateralBound(address dapp) internal view returns (uint256) {
-        return dapp_bounds[dapp].collateral_bound;
-    }
+    function _getBounds(address dapp) internal view returns (Bounds memory) {
+        if(isCustomContract(dapp)) return dapp_bounds[dapp];
+        if(isLargeContract(dapp)) return dapp_bounds[large];
+        return dapp_bounds[small];
+    } 
 }
