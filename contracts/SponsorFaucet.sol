@@ -154,22 +154,19 @@ contract SponsorFaucet is
     }
 
     /**
-     * @dev add contract addresses to custom_contracts list
-     * @param addrList contract address list
-     * @param boundsList bounds list
+     * @dev add contract address to custom_contracts list
+     * @param addr contract address
+     * @param bounds bounds
      */
     function addCustomContracts(
-        address[] memory addrList,
-        Bounds[] memory boundsList
+        address addr,
+        Bounds memory bounds
     ) public onlyWhitelistAdmin {
-        require(addrList.length == boundsList.length, "length not match");
-        for (uint256 i = 0; i < addrList.length; i++) {
-            require(addrList[i] != small && addrList[i] != large, "reserved address can't be added");
-            require(addrList[i].isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
-            if(!custom_contracts[addrList[i]]) custom_contracts[addrList[i]] = true;
-            if(large_contracts[addrList[i]]) large_contracts[addrList[i]] = false;
-            setBounds(addrList[i], boundsList[i]);
-        }
+        require(addr != small && addr != large, "reserved address can't be added");
+        require(addr.isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
+        if(!custom_contracts[addr]) custom_contracts[addr] = true;
+        if(large_contracts[addr]) large_contracts[addr] = false;
+        setBounds(addr, bounds);
     }
 
     /**
