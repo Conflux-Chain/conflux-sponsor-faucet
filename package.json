@@ -1,6 +1,6 @@
 {
   "name": "conflux-sponsorfaucet",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "",
   "main": "faucet.js",
   "directories": {
@@ -21,12 +21,6 @@
   },
   "homepage": "https://github.com/Conflux-Chain/conflux-sponsor-faucet#readme",
   "dependencies": {
-    "@openzeppelin/contracts": "^2.4.0",
-    "commander": "^6.0.0",
-    "ethers": "^5.0.8",
-    "js-conflux-sdk": "^0.13.4",
-    "web3": "^1.2.11",
-    "prettier": "^2.0.5",
-    "prettier-plugin-solidity": "^1.0.0-alpha.54"
+    "js-conflux-sdk": "^1.1.0"
   }
 }
