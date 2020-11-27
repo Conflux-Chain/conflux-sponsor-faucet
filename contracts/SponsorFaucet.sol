@@ -125,6 +125,9 @@ contract SponsorFaucet is
      * @param bounds structed bounds for contract
      */
     function setBounds(address addr, Bounds memory bounds) public onlyWhitelistAdmin {
+        if(addr != small && addr != large) {
+            require(addr.isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
+        }
         //rule by internal contract
         require(
             bounds.upper_bound.mul(1000) <= bounds.gas_bound,
@@ -141,6 +144,7 @@ contract SponsorFaucet is
     function addLargeContracts(address[] memory addrList) public onlyWhitelistAdmin {
         for (uint256 i = 0; i < addrList.length; i++) {
             require(addrList[i] != small && addrList[i] != large, "reserved address can't be added");
+            require(addrList[i].isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
             if(!large_contracts[addrList[i]]) large_contracts[addrList[i]] = true;
             if (custom_contracts[addrList[i]]) {
                 delete dapp_bounds[addrList[i]];
@@ -161,30 +165,25 @@ contract SponsorFaucet is
         require(addrList.length == boundsList.length, "length not match");
         for (uint256 i = 0; i < addrList.length; i++) {
             require(addrList[i] != small && addrList[i] != large, "reserved address can't be added");
+            require(addrList[i].isContract(), "ERROR_ADDRESS_IS_NOT_CONTRACT");
             if(!custom_contracts[addrList[i]]) custom_contracts[addrList[i]] = true;
-            large_contracts[addrList[i]] = false;
+            if(large_contracts[addrList[i]]) large_contracts[addrList[i]] = false;
             setBounds(addrList[i], boundsList[i]);
         }
     }
 
     /**
-     * @dev remove contract from large_contracts list
+     * @dev remove contract from large_contracts/custom_contracts list
      * @param addrList contract address list
      */
-    function removeLargeContract(address[] memory addrList) public onlyWhitelistAdmin { 
+    function removeContract(address[] memory addrList) public onlyWhitelistAdmin {
         for (uint256 i = 0; i < addrList.length; i++) {
-            delete large_contracts[addrList[i]];
-        }
-    }
-
-    /**
-     * @dev remove contract from custom_contracts list
-     * @param addrList contract address list
-     */
-    function removeCustomContract(address[] memory addrList) public onlyWhitelistAdmin {
-        for (uint256 i = 0; i < addrList.length; i++) {
-            delete custom_contracts[addrList[i]];
-            delete dapp_bounds[addrList[i]];
+            if(isLargeContract(addrList[i])) {
+                delete large_contracts[addrList[i]];
+            } else if (isCustomContract(addrList[i])) {
+                delete custom_contracts[addrList[i]];
+                delete dapp_bounds[addrList[i]];
+            }
         }
     }
 
