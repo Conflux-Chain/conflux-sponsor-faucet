@@ -69,6 +69,17 @@ contract SponsorFaucet is
             largeBounds.upper_bound.mul(1000) <= largeBounds.gas_bound,
             "upperBound too high"
         );
+        //bound and limit check
+        require(
+            smallBounds.gas_bound <= smallBounds.gas_total_limit && 
+            smallBounds.collateral_bound <= smallBounds.collateral_total_limit,
+            "bound higher than limit"
+        );
+        require(
+            largeBounds.gas_bound <= largeBounds.gas_total_limit && 
+            largeBounds.collateral_bound <= largeBounds.collateral_total_limit,
+            "bound higher than limit"
+        );
         dapp_bounds[small] = smallBounds;
         dapp_bounds[large] = largeBounds;
     }
@@ -133,8 +144,24 @@ contract SponsorFaucet is
             bounds.upper_bound.mul(1000) <= bounds.gas_bound,
             "upperBound too high"
         );
+        //bound and limit check
+        require(
+            bounds.gas_bound <= bounds.gas_total_limit &&
+            bounds.collateral_bound <= bounds.collateral_total_limit,
+            "bound higher than limit"
+        );
         dapp_bounds[addr] = bounds;
     }
+
+    /**
+     * @dev get contract bounds
+     * @param dapp contract address
+     */
+    function getBounds(address dapp) public view returns (Bounds memory) {
+        if(isCustomContract(dapp)) return dapp_bounds[dapp];
+        if(isLargeContract(dapp)) return dapp_bounds[large];
+        return dapp_bounds[small];
+    } 
 
     /* ===== Public utility functions ===== */
     /**
@@ -206,7 +233,7 @@ contract SponsorFaucet is
         if (!dapp.isContract()) return false;
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_gas_bound = current_bounds.gas_bound;
         uint256 contract_gas_total_limit = current_bounds.gas_total_limit; 
 
@@ -235,7 +262,7 @@ contract SponsorFaucet is
     function _validateApplyForGas(address dapp) internal {
         address current_sponsor = internal_sponsor.getSponsorForGas(dapp);
         uint256 gas_balance = internal_sponsor.getSponsoredBalanceForGas(dapp);
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_gas_bound = current_bounds.gas_bound;
         uint256 contract_gas_total_limit = current_bounds.gas_total_limit;
 
@@ -269,7 +296,7 @@ contract SponsorFaucet is
         if (!dapp.isContract()) return false;
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_collateral_bound = current_bounds.collateral_bound;
         uint256 contract_collateral_total_limit = current_bounds.collateral_total_limit;
         
@@ -288,7 +315,7 @@ contract SponsorFaucet is
     function _validateApplyForCollateral(address dapp) internal {
         uint256 collateral_balance = internal_sponsor
             .getSponsoredBalanceForCollateral(dapp);
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_collateral_bound = current_bounds.collateral_bound;
         uint256 contract_collateral_total_limit = current_bounds.collateral_total_limit;
         
@@ -309,7 +336,7 @@ contract SponsorFaucet is
     }
 
     function _applyForGas(address dapp) internal {
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_gas_bound = current_bounds.gas_bound;
         uint256 contract_upper_bound = current_bounds.upper_bound; 
         
@@ -324,7 +351,7 @@ contract SponsorFaucet is
     }
 
     function _applyForCollateral(address dapp) internal {
-        Bounds memory current_bounds = _getBounds(dapp);
+        Bounds memory current_bounds = getBounds(dapp);
         uint256 contract_collateral_bound = current_bounds.collateral_bound;
         
         internal_sponsor.setSponsorForCollateral.value(
@@ -335,10 +362,4 @@ contract SponsorFaucet is
             .add(contract_collateral_bound);
         emit applied(msg.sender, dapp, contract_collateral_bound);
     }
-
-    function _getBounds(address dapp) internal view returns (Bounds memory) {
-        if(isCustomContract(dapp)) return dapp_bounds[dapp];
-        if(isLargeContract(dapp)) return dapp_bounds[large];
-        return dapp_bounds[small];
-    } 
 }
