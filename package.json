@@ -23,10 +23,8 @@
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
     "commander": "^6.0.0",
-    "ethers": "^5.0.8",
     "js-conflux-sdk": "^1.1.0",
     "prettier": "^2.0.5",
-    "prettier-plugin-solidity": "^1.0.0-alpha.54",
-    "web3": "^1.2.11"
+    "prettier-plugin-solidity": "^1.0.0-alpha.54"
   }
 }
