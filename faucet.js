@@ -3,6 +3,7 @@ const BigNumber = require('bignumber.js');
 
 //sponsor faucet contract abi
 const faucetContract = require('./build/contracts/SponsorFaucet.json');
+const oldFaucetContract = require('./build/contracts/oldSponsorFaucet.json');
 
 //suggested factor to make sure gas is enough
 const gas_estimation_ratio_withdraw = 1.8;
@@ -10,6 +11,8 @@ const gas_estimation_ratio_default = 1.3;
 
 //address key for bounds
 const small = '0x0000000000000000000000000000000000000000';
+const oldFaucet_address = '0x896025a1b3ba4713feef7d72a4866527a5af814e';
+//tethys: 0x8d5adbcaf5714924830591586f05302bf87f74bd
 
 class Faucet {
     /**
@@ -23,6 +26,10 @@ class Faucet {
         this.faucet = this.cfx.Contract({
             abi: faucetContract.abi,
             address: address,
+        });
+        this.oldFaucet = this.cfx.Contract({
+            abi: oldFaucetContract.abi,
+            address: oldFaucet_address,
         });
     }
 
@@ -67,21 +74,35 @@ class Faucet {
      */
     async checkAppliable(dapp) {
         if(dapp === null) return {flag: false, message:''};
-        let r, sponsorInfo, faucetParams, collateralForStorage;
+        let r, sponsorInfo, faucetParams, collateralForStorage, oldDetail;
         try {
             faucetParams = await this.getFaucetParams(dapp);
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
             collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
-            if(sponsorInfo.sponsorForCollateral !== this.address && collateralForStorage > faucetParams.collateral_bound) {        
+            
+            if(sponsorInfo.sponsorForCollateral === oldFaucet_address || sponsorInfo.sponsorForGas === oldFaucet_address) {
+                oldDetail = await this.oldFaucet.dapps(dapp).call();
+                if(oldDetail[0] >= faucetParams.gas_bound || oldDetail[1] >= faucetParams.collateral_bound) {
+                    return {
+                        flag: false,
+                        message: 'ERROR_UPGRADE_CANNOT_REPLACE_OLD_FAUCET'
+                    }
+                }
+            }
+
+            if(sponsorInfo.sponsorForCollateral !== this.oldFaucet_address &&
+                sponsorInfo.sponsorForCollateral !== this.address && 
+                collateralForStorage > faucetParams.collateral_bound) {        
                 return {
                     flag: false,
                     message: 'ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR'
                 }
             }
+
         } catch (e) {
             return {
                 flag: false,
-                message: 'RPC ERROR' + e.toString()
+                message: 'RPC ERROR ' + e.toString()
             }
         } 
 

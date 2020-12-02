@@ -44,7 +44,7 @@ contract SponsorFaucet is
     mapping(address => Detail) public dapps;
 
     // bounds for contracts
-    mapping(address => Bounds) public dapp_bounds;
+    mapping(address => Bounds) private dapp_bounds;
 
     mapping(address => bool) private large_contracts;
     mapping(address => bool) private custom_contracts;
