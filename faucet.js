@@ -69,7 +69,7 @@ class Faucet {
         if(dapp === null) return {flag: false, message:''};
         let r, sponsorInfo, faucetParams, collateralForStorage;
         try {
-            faucetParams = await this.getFaucetParams();
+            faucetParams = await this.getFaucetParams(dapp);
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
             collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
             if(sponsorInfo.sponsorForCollateral !== this.address && collateralForStorage > faucetParams.collateral_bound) {        
