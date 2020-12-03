@@ -3,7 +3,6 @@ const BigNumber = require('bignumber.js');
 
 //sponsor faucet contract abi
 const faucetContract = require('./build/contracts/SponsorFaucet.json');
-const oldFaucetContract = require('./build/contracts/oldSponsorFaucet.json');
 
 //suggested factor to make sure gas is enough
 const gas_estimation_ratio_withdraw = 1.8;
@@ -25,7 +24,7 @@ class Faucet {
             address: address,
         });
         this.oldFaucet = this.cfx.Contract({
-            abi: oldFaucetContract.abi,
+            abi: faucetContract.abi,
             address: lastAddress,
         });
     }
@@ -77,18 +76,15 @@ class Faucet {
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
             collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
             
-            if(sponsorInfo.sponsorForCollateral === this.lastAddress || sponsorInfo.sponsorForGas === this.lastAddress) {
+            if(sponsorInfo.sponsorForCollateral === this.lastAddress) {
                 oldDetail = await this.oldFaucet.dapps(dapp).call();
-                if(oldDetail[0] >= faucetParams.gas_bound || oldDetail[1] >= faucetParams.collateral_bound) {
+                if(oldDetail[1] >= faucetParams.collateral_bound) {
                     return {
                         flag: false,
-                        message: 'ERROR_UPGRADE_CANNOT_REPLACE_OLD_FAUCET'
+                        message: 'ERROR_COLLATERAL_CANNOT_REPLACE_OLD_FAUCET'
                     }
                 }
-            }
-
-            if(sponsorInfo.sponsorForCollateral !== this.lastAddress &&
-                sponsorInfo.sponsorForCollateral !== this.address && 
+            } else if(sponsorInfo.sponsorForCollateral !== this.address && 
                 collateralForStorage > faucetParams.collateral_bound) {        
                 return {
                     flag: false,
