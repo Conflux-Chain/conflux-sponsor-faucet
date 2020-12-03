@@ -9,27 +9,24 @@ const oldFaucetContract = require('./build/contracts/oldSponsorFaucet.json');
 const gas_estimation_ratio_withdraw = 1.8;
 const gas_estimation_ratio_default = 1.3;
 
-//address key for bounds
-const small = '0x0000000000000000000000000000000000000000';
-const oldFaucet_address = '0x896025a1b3ba4713feef7d72a4866527a5af814e';
-//tethys: 0x8d5adbcaf5714924830591586f05302bf87f74bd
-
 class Faucet {
     /**
      * @dev constructor for faucet
      * @param url The conflux provider url 
      * @param address The faucet contract address
+     * @param lastAddress The last faucet contract address 
      */
-    constructor(url, address) {
+    constructor(url, address, lastAddress) {
         this.cfx = new Conflux({url: url});
         this.address = address;
+        this.lastAddress = lastAddress;
         this.faucet = this.cfx.Contract({
             abi: faucetContract.abi,
             address: address,
         });
         this.oldFaucet = this.cfx.Contract({
             abi: oldFaucetContract.abi,
-            address: oldFaucet_address,
+            address: lastAddress,
         });
     }
 
@@ -80,7 +77,7 @@ class Faucet {
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
             collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
             
-            if(sponsorInfo.sponsorForCollateral === oldFaucet_address || sponsorInfo.sponsorForGas === oldFaucet_address) {
+            if(sponsorInfo.sponsorForCollateral === this.lastAddress || sponsorInfo.sponsorForGas === this.lastAddress) {
                 oldDetail = await this.oldFaucet.dapps(dapp).call();
                 if(oldDetail[0] >= faucetParams.gas_bound || oldDetail[1] >= faucetParams.collateral_bound) {
                     return {
@@ -90,7 +87,7 @@ class Faucet {
                 }
             }
 
-            if(sponsorInfo.sponsorForCollateral !== this.oldFaucet_address &&
+            if(sponsorInfo.sponsorForCollateral !== this.lastAddress &&
                 sponsorInfo.sponsorForCollateral !== this.address && 
                 collateralForStorage > faucetParams.collateral_bound) {        
                 return {
