@@ -68,7 +68,10 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
 7. get bounds and limits of faucet
 
    ```js
-   async getFaucetParams() -> 
+   /**
+    * @param dapp contract address
+    */
+   async getFaucetParams(dapp) -> 
    {
      	gas_total_limit: JSBI,
      	collateral_total_limit: JSBI,
