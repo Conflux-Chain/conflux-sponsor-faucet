@@ -80,7 +80,6 @@ contract SponsorFaucet is
             largeBounds.collateral_bound <= largeBounds.collateral_total_limit,
             "bound higher than limit"
         );
-        large_contracts[large] = true;
         dapp_bounds[small] = smallBounds;
         dapp_bounds[large] = largeBounds;
     }
@@ -217,7 +216,7 @@ contract SponsorFaucet is
      * @param dapp contract address
      */
     function isLargeContract(address dapp) public view returns (bool) {
-        return large_contracts[dapp];
+        return large_contracts[dapp] || dapp == large;
     }
 
     /**
