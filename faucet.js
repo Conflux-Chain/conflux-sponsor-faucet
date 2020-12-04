@@ -8,6 +8,9 @@ const faucetContract = require('./build/contracts/SponsorFaucet.json');
 const gas_estimation_ratio_withdraw = 1.8;
 const gas_estimation_ratio_default = 1.3;
 
+//address key for bounds
+const small = '0x0000000000000000000000000000000000000000';
+
 class Faucet {
     /**
      * @dev constructor for faucet
