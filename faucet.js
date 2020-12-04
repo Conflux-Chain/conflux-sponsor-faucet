@@ -8,21 +8,24 @@ const faucetContract = require('./build/contracts/SponsorFaucet.json');
 const gas_estimation_ratio_withdraw = 1.8;
 const gas_estimation_ratio_default = 1.3;
 
-//address key for bounds
-const small = '0x0000000000000000000000000000000000000000';
-
 class Faucet {
     /**
      * @dev constructor for faucet
      * @param url The conflux provider url 
      * @param address The faucet contract address
+     * @param lastAddress The last faucet contract address 
      */
-    constructor(url, address) {
+    constructor(url, address, lastAddress) {
         this.cfx = new Conflux({url: url});
         this.address = address;
+        this.lastAddress = lastAddress;
         this.faucet = this.cfx.Contract({
             abi: faucetContract.abi,
             address: address,
+        });
+        this.oldFaucet = this.cfx.Contract({
+            abi: faucetContract.abi,
+            address: lastAddress,
         });
     }
 
@@ -66,20 +69,33 @@ class Faucet {
      * @param dapp The address of dapp 
      */
     async checkAppliable(dapp) {
-        let r, sponsorInfo, faucetParams;
+        if(dapp === null) return {flag: false, message:''};
+        let r, sponsorInfo, faucetParams, collateralForStorage, oldDetail;
         try {
-            faucetParams = await this.getFaucetParams();
+            faucetParams = await this.getFaucetParams(dapp);
             sponsorInfo = await this.cfx.getSponsorInfo(dapp);
-            if(sponsorInfo.sponsorForCollateral !== this.address && sponsorInfo.sponsorBalanceForCollateral > faucetParams.collateral_bound) {        
+            collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
+            
+            if(sponsorInfo.sponsorForCollateral === this.lastAddress) {
+                oldDetail = await this.oldFaucet.dapps(dapp).call();
+                if(oldDetail[1] >= faucetParams.collateral_bound) {
+                    return {
+                        flag: false,
+                        message: 'ERROR_COLLATERAL_CANNOT_REPLACE_OLD_FAUCET'
+                    }
+                }
+            } else if(sponsorInfo.sponsorForCollateral !== this.address && 
+                collateralForStorage > faucetParams.collateral_bound) {        
                 return {
                     flag: false,
                     message: 'ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR'
                 }
             }
+
         } catch (e) {
             return {
                 flag: false,
-                message: 'RPC ERROR' + e.toString()
+                message: 'RPC ERROR ' + e.toString()
             }
         } 
 
@@ -153,10 +169,10 @@ class Faucet {
     /**
      * @dev get bounds and limit params of faucet
      */
-    async getFaucetParams() {
+    async getFaucetParams(dapp) {
         let res;
         try {
-            res = await this.faucet.dapp_bounds(small).call();
+            res = await this.faucet.getBounds(dapp).call();
             return {
                 gas_total_limit: res[0],
                 collateral_total_limit: res[1],
