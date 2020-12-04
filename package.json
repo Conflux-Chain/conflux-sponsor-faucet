@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "contract_prettier": "prettier --write contracts/*.sol"
+    "contract_prettier": "prettier --write contracts/*.sol",
+    "prettier": "prettier --write faucet.js"
   },
   "repository": {
     "type": "git",
