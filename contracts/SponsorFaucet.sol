@@ -80,7 +80,10 @@ contract SponsorFaucet is
             largeBounds.collateral_bound <= largeBounds.collateral_total_limit,
             "bound higher than limit"
         );
+<<<<<<< HEAD
         large_contracts[large] = true;
+=======
+>>>>>>> upstream/master
         dapp_bounds[small] = smallBounds;
         dapp_bounds[large] = largeBounds;
     }
