@@ -10,8 +10,9 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    /**
     * @param url The conflux provider url 
     * @param address The faucet contract address
+    * @param lastAddress The last faucet contract address 
     */
-   constructor(url, address)
+   constructor(url, address, lastAddress)
    ```
 
 2. apply gas / collateral sponsorship 
@@ -89,14 +90,15 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
 
 ### ERROR CODE
 #### Address Check
-1. ERROR_ADDRESS_IS_NOT_CONTRACT // 申请地址不是合约
+1. ERROR_ADDRESS_IS_NOT_CONTRACT // Application address is not a contract
 #### For Gas
-1. ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // 无法替换第三方赞助者
-2. ERROR_GAS_FAUCET_OUT_OF_MONEY // faucet 余额不足
-3. ERROR_GAS_SPONSORED_FUND_UNUSED // 已申请赞助未使用
-4. ERROR_GAS_OVER_GAS_TOTAL_LIMIT // 超过gas 赞助总额上限
+1. ERROR_GAS_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // Faucet cannot replace third-party sponsors
+2. ERROR_GAS_FAUCET_OUT_OF_MONEY // Faucet insufficient balance
+3. ERROR_GAS_SPONSORED_FUND_UNUSED // Sponsored but not used
+4. ERROR_GAS_OVER_GAS_TOTAL_LIMIT // Exceeds the total gas sponsorship limit
 #### For storage/collateral
-1. ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // 无法替换第三方赞助者
-2. ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY // faucet 余额不足
-3. ERROR_COLLATERAL_SPONSORED_FUND_UNUSED // 已申请赞助未使用
-4. ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT //超过collateral 赞助总额上限
+1. ERROR_COLLATERAL_CANNOT_REPLACE_OLD_FAUCET // Contract upgraded, please contact the administrator
+2. ERROR_COLLATERAL_CANNOT_REPLACE_THIRD_PARTY_SPONSOR // Faucet cannot replace third-party sponsors
+3. ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY // Faucet insufficient balance
+4. ERROR_COLLATERAL_SPONSORED_FUND_UNUSED // Sponsored but not used
+5. ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT // Exceeds the maximum amount of collateral sponsorship
