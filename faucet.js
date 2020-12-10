@@ -74,14 +74,16 @@ class Faucet {
   async checkAppliable(dapp) {
     if (dapp === null) return {flag: false, message: "Contract address not specified"};
     let r, sponsorInfo, faucetParams, collateralForStorage, oldDetail;
+    let accumulatedCollateral, collateralBound;
     try {
       faucetParams = await this.getFaucetParams(dapp);
       sponsorInfo = await this.cfx.getSponsorInfo(dapp);
-      collateralForStorage = await this.cfx.getCollateralForStorage(dapp);
-
+      collateralForStorage = new BigNumber(await this.cfx.getCollateralForStorage(dapp));
+      collateralBound = new BigNumber(faucetParams.collateral_bound);
       if (sponsorInfo.sponsorForCollateral === this.lastAddress) {
         oldDetail = await this.oldFaucet.dapps(dapp).call();
-        if (oldDetail[1] >= faucetParams.collateral_bound) {
+        accumulatedCollateral = new BigNumber(oldDetail[1]);
+        if (accumulatedCollateral.gte(collateralBound)) {
           return {
             flag: false,
             message: "ERROR_COLLATERAL_CANNOT_REPLACE_OLD_FAUCET",
@@ -89,7 +91,7 @@ class Faucet {
         }
       } else if (
         sponsorInfo.sponsorForCollateral !== this.address &&
-        collateralForStorage > faucetParams.collateral_bound
+        collateralForStorage.gt(collateralBound)
       ) {
         return {
           flag: false,
