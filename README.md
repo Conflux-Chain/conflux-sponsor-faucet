@@ -91,6 +91,35 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
    }
    ```
 
+9. get all info for a contract
+
+   ```js
+   /**
+    * @param dapp contract address
+    */
+   async search(dapp) ->
+   {
+      gas_amount_accumulated: BigNumber { s: 1, e: 0, c: [ 0 ] },
+      collateral_amount_accumulated: BigNumber { s: 1, e: 0, c: [ 0 ] },
+      gas_total_limit: BigNumber { s: 1, e: 20, c: [ 1000000 ] },
+      collateral_total_limit: BigNumber { s: 1, e: 21, c: [ 60000000 ] },
+      gas_bound: BigNumber { s: 1, e: 19, c: [ 100000 ] },
+      collateral_bound: BigNumber { s: 1, e: 20, c: [ 6000000 ] },
+      upper_bound: BigNumber { s: 1, e: 10, c: [ 10000000000 ] },
+      sponsorInfo: {
+          sponsorBalanceForCollateral: '0x167bcfff8f71430000',
+          sponsorBalanceForGas: '0x1158e460910a76576',
+          sponsorForCollateral: '0x8097e818c2c2c1524c41f0fcbda143520046d117',
+          sponsorForGas: '0x8097e818c2c2c1524c41f0fcbda143520046d117',
+          sponsorGasBound: '0x2540be400'
+      },
+      isAppliable: {
+          flag: false,
+          message: 'ERROR_COLLATERAL_CANNOT_REPLACE_OLD_FAUCET'
+      }
+   }
+   ```
+
 ### ERROR CODE
 #### Address Check
 1. ERROR_ADDRESS_IS_NOT_CONTRACT // Application address is not a contract
@@ -105,3 +134,4 @@ The **SponsorFaucet** returns a **rawTx** with suggested gas and input data.
 3. ERROR_COLLATERAL_FAUCET_OUT_OF_MONEY // Faucet insufficient balance
 4. ERROR_COLLATERAL_SPONSORED_FUND_UNUSED // Sponsored but not used
 5. ERROR_COLLATERAL_OVER_COLLATERAL_TOTAL_LIMIT // Exceeds the maximum amount of collateral sponsorship
+
