@@ -1,4 +1,4 @@
-const { Conflux, providerFactory } = require("js-conflux-sdk");
+const { Conflux } = require("js-conflux-sdk");
 const BigNumber = require("bignumber.js");
 
 //sponsor faucet contract abi
@@ -9,10 +9,10 @@ const gas_estimation_ratio_withdraw = 1.8;
 const gas_estimation_ratio_default = 1.3;
 
 /**
- * @dev parse encoded data
+ * @dev parse bytecode data to array
  * @param data
  */
-function _parse(data) {
+function _parseBytecode(data) {
   let r = [];
   if (data.length > 0 && (data.length - 2) % 64 !== 0) return r;
   let tmp;
@@ -32,7 +32,7 @@ class Faucet {
    */
   constructor(url, address, lastAddress) {
     this.cfx = new Conflux({ url: url });
-    this.provider = providerFactory({ url: url });
+    this.provider = this.cfx.provider;
     this.address = address;
     this.lastAddress = lastAddress;
     this.faucet = this.cfx.Contract({
@@ -101,13 +101,10 @@ class Faucet {
         { method: "cfx_getCollateralForStorage", params: [dapp] },
       ]);
 
-      faucetParams = res[0];
+      faucetParams = _parseBytecode(res[0]);
       sponsorInfo = res[1];
       collateralForStorage = new BigNumber(res[2]);
-      let start = 2 + 3 * 64;
-      collateralBound = new BigNumber(
-        "0x" + faucetParams.slice(start, start + 64)
-      );
+      collateralBound = faucetParams[3];
 
       if (sponsorInfo.sponsorForCollateral === this.lastAddress) {
         oldDetail = await this.oldFaucet.dapps(dapp).call();
@@ -268,9 +265,9 @@ class Faucet {
     }
 
     let collateralForStorage = new BigNumber(data[0]);
-    let currentDetails = _parse(data[1]);
-    let previousDetails = _parse(data[2]);
-    let faucetParams = _parse(data[3]);
+    let currentDetails = _parseBytecode(data[1]);
+    let previousDetails = _parseBytecode(data[2]);
+    let faucetParams = _parseBytecode(data[3]);
     let sponsorInfo = data[4];
     let collateralBound = faucetParams[3];
     let accumulatedCollateral = new BigNumber(previousDetails[1]);
